@@ -1,0 +1,27 @@
+{
+    "name": "绿绿的工作台",
+    "short_name": "绿绿工作台",
+    "description": "个人成长小助手 ✦ 财务记账、宝宝日记、待办清单、学习成长、健康管理、情商提升、热搜新闻、每日新知识、抖音爆款",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#faf9f5",
+    "theme_color": "#7cb87c",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [],
+    "categories": ["productivity", "lifestyle"]
+}

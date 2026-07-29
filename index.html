@@ -1,0 +1,4387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>绿绿的工作台 ✦</title>
+
+    <!-- PWA 配置 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7cb87c">
+    <meta name="application-name" content="绿绿工作台">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="绿绿工作台">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- iOS 安全区域适配 -->
+    <style>
+        body { padding-top: env(safe-area-inset-top); }
+    </style>
+    <style>
+        /* ========== 全局变量 - 简约可爱风 ========== */
+        :root {
+            --green-50: #f7fcf6;
+            --green-100: #eef6ee;
+            --green-200: #d9ecdb;
+            --green-300: #b8ddb8;
+            --green-400: #8fca8f;
+            --green-500: #5fae5f;
+            --green-600: #4a9a4a;
+            --green-700: #3d8a3d;
+            --green-800: #357135;
+            --green-900: #2d5e2d;
+            --cream: #fefcf7;
+            --soft-bg: #faf9f5;
+            --card-bg: #ffffff;
+            --text-main: #3a3a3a;
+            --text-sub: #6b6b6b;
+            --text-light: #9a9a9a;
+            --border-soft: #eeeae3;
+            --accent: #7cb87c;
+            --accent-soft: #f0f7ee;
+            --radius: 14px;
+            --radius-sm: 10px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.08);
+            --nav-w: 230px;
+            --nav-collapsed-w: 68px;
+            --star-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='white'/%3E%3Cpath d='M12 4.5l2.18 4.42 4.88.71-3.53 3.44.83 4.86L12 15.6l-4.36 2.33.83-4.86-3.53-3.44 4.88-.71L12 4.5z' fill='%237cb87c' stroke='%235fae5f' stroke-width='0.5'/%3E%3C/svg%3E");
+        }
+
+        /* ========== Reset ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--soft-bg);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== 左侧导航栏 ========== */
+        .sidebar {
+            width: var(--nav-w);
+            min-width: var(--nav-w);
+            background: #fefcf7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 1px 0 0 var(--border-soft);
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed {
+            width: var(--nav-collapsed-w);
+            min-width: var(--nav-collapsed-w);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 28px;
+            padding: 0 16px;
+            transition: padding 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 0 8px;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-header .logo-star {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-soft);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .sidebar-header h1 {
+            font-size: 17px;
+            color: var(--text-main);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.2s ease, width 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header h1 {
+            opacity: 0;
+            width: 0;
+        }
+
+        .nav-list {
+            width: 100%;
+            padding: 0 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: padding 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-list {
+            padding: 0 6px;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-sub);
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .nav-item {
+            flex-direction: column;
+            padding: 10px 4px;
+            gap: 3px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: var(--accent-soft);
+            color: var(--green-700);
+        }
+
+        .nav-item.active {
+            background: var(--accent-soft);
+            color: var(--green-600);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+            transition: width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 20px;
+        }
+
+        .nav-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-label {
+            white-space: nowrap;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .sidebar.collapsed .nav-label {
+            opacity: 0;
+            width: 0;
+            font-size: 0;
+        }
+
+        /* 导航红点 badge */
+        .nav-badge {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            animation: badgePulse 2s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-badge {
+            right: 2px;
+            top: 2px;
+            transform: none;
+            min-width: 15px;
+            height: 15px;
+            font-size: 10px;
+            padding: 0 3px;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.15); }
+        }
+
+        .sidebar.collapsed .nav-badge {
+            animation: badgePulseCollapsed 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulseCollapsed {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* ========== 折叠/展开按钮 ========== */
+        .sidebar-toggle {
+            width: 100%;
+            padding: 12px 0;
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--border-soft);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        .sidebar-toggle:hover {
+            color: var(--green-600);
+            background: var(--accent-soft);
+        }
+
+        .sidebar-toggle svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-toggle svg {
+            transform: rotate(180deg);
+        }
+
+        /* 隐藏桌面端不需要的遮罩和移动菜单按钮 */
+        .sidebar-overlay,
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        /* ========== 移动端抽屉导航 ========== */
+        @media (max-width: 768px) {
+            :root {
+                --nav-w: 230px;
+            }
+
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: var(--nav-w);
+                min-width: var(--nav-w);
+                padding: 16px 0;
+                left: 0;
+                transform: translateX(-100%);
+                box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar.collapsed {
+                width: var(--nav-w);
+                min-width: var(--nav-w);
+            }
+
+            .sidebar-header {
+                flex-direction: row;
+                gap: 8px;
+                padding: 0 16px;
+                margin-bottom: 20px;
+            }
+
+            .sidebar-header h1 {
+                display: block;
+            }
+
+            .nav-list {
+                padding: 0 12px;
+                gap: 4px;
+                align-items: stretch;
+            }
+
+            .nav-item {
+                flex-direction: row;
+                padding: 12px 14px;
+                gap: 10px;
+                justify-content: flex-start;
+                border-radius: var(--radius-sm);
+            }
+
+            .nav-icon {
+                width: 22px;
+                height: 22px;
+                font-size: 16px;
+            }
+
+            .nav-label {
+                font-size: 14px;
+                opacity: 1;
+                width: auto;
+            }
+
+            .nav-badge {
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                min-width: 18px;
+                height: 18px;
+                font-size: 11px;
+                padding: 0 5px;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+                padding: 14px 0;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.35);
+                z-index: 99;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 34px;
+                height: 34px;
+                border-radius: 10px;
+                background: var(--card-bg);
+                border: 1px solid var(--border-soft);
+                color: var(--text-sub);
+                cursor: pointer;
+                margin-right: 10px;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            }
+
+            .mobile-menu-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .main {
+                margin-left: 0 !important;
+                padding: 12px;
+                padding-bottom: 20px;
+                width: 100%;
+                max-width: 100vw;
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+
+            .page {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .page-title {
+                font-size: 17px;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 4px;
+                word-break: break-word;
+            }
+
+            .page-subtitle {
+                font-size: 12px;
+                margin-bottom: 16px;
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            /* 移动端 canvas 自适应 */
+            canvas {
+                width: 100%;
+                max-width: 100%;
+                min-height: 220px;
+                height: 220px;
+                display: block;
+            }
+
+            /* Tab 换行 */
+            .tabs {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1;
+                min-width: 70px;
+                text-align: center;
+                padding: 6px 8px;
+            }
+
+            /* 锻炼目标标签换行 */
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+
+            .workout-target {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+
+            /* 单选按钮组移动端适配 */
+            .flex-row {
+                flex-wrap: wrap;
+                gap: 8px 16px;
+            }
+
+            .flex-row label {
+                margin-left: 0 !important;
+                font-size: 13px;
+            }
+
+            /* 表格滚动容器 */
+            [style*="overflow-x:auto"] {
+                max-width: 100vw;
+            }
+
+            .quick-nav-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .welcome-banner {
+                padding: 16px;
+            }
+
+            .welcome-banner h2 {
+                font-size: 18px;
+            }
+
+            .welcome-banner p {
+                font-size: 12px;
+            }
+
+            .card {
+                padding: 14px;
+                margin-bottom: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+            }
+
+            .card > * {
+                max-width: 100%;
+            }
+
+            .card-title {
+                font-size: 14px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-card .stat-label {
+                font-size: 11px;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 18px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 7px 8px;
+            }
+
+            .btn {
+                padding: 7px 14px;
+                font-size: 13px;
+            }
+
+            input, select, textarea {
+                padding: 8px 10px;
+                font-size: 16px; /* iOS 防止缩放 */
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            input[type="date"] {
+                min-width: 100%;
+                width: 100%;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+        .star-favicon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .star-favicon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ========== 主内容区 ========== */
+        .main {
+            margin-left: var(--nav-w);
+            flex: 1;
+            padding: 24px 32px;
+            min-height: 100vh;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+
+        /* ========== 卡片 ========== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== 按钮 ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-green {
+            background: var(--green-500);
+            color: white;
+            border: none;
+        }
+
+        .btn-green:hover {
+            background: var(--green-600);
+            box-shadow: 0 2px 8px rgba(95,174,95,0.25);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--green-300);
+            color: var(--green-700);
+        }
+
+        .btn-outline:hover {
+            background: var(--green-50);
+        }
+
+        .btn-soft {
+            background: var(--green-50);
+            color: var(--green-700);
+            border: 1px solid var(--green-100);
+        }
+
+        .btn-soft:hover {
+            background: var(--green-100);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 13px;
+        }
+
+        /* ========== 输入框 ========== */
+        input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-main);
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--green-400);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* ========== 统计卡片 ========== */
+        .stat-card {
+            background: #f7fbf5;
+            color: var(--text-main);
+            border: 1px solid var(--green-200);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 4px 0;
+            color: var(--green-600);
+        }
+
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .stat-card.alt {
+            background: #f3f8f0;
+            border-color: var(--green-200);
+        }
+        .stat-card.alt .stat-value { color: var(--green-500); }
+
+        .stat-card.warm {
+            background: #fdf8f0;
+            border-color: #f0e4cc;
+        }
+        .stat-card.warm .stat-value { color: #d49a3e; }
+
+        .stat-card.cool {
+            background: #f0f7f6;
+            border-color: #cce5e3;
+        }
+        .stat-card.cool .stat-value { color: #3da89e; }
+        }
+
+        /* ========== 标签 ========== */
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-green {
+            background: var(--green-100);
+            color: var(--green-700);
+        }
+
+        .tag-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .tag-blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tag-purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .tag-orange {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+
+        .tag-gray {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* ========== 表格 ========== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 12px;
+            color: var(--text-sub);
+            font-weight: 500;
+            border-bottom: 2px solid var(--green-100);
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-soft);
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background: var(--green-50);
+        }
+
+        /* ========== 进度条 ========== */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--green-100);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--green-400);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* ========== 空状态 ========== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        /* ========== 工具类 ========== */
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flex-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mt-12 { margin-top: 12px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-12 { margin-bottom: 12px; }
+        .mb-16 { margin-bottom: 16px; }
+        .text-sm { font-size: 13px; }
+        .text-lg { font-size: 18px; }
+        .text-green { color: var(--green-700); }
+        .text-red { color: #dc2626; }
+        .text-gray { color: var(--text-light); }
+        .font-bold { font-weight: 700; }
+        .text-center { text-align: center; }
+
+        /* ========== 滚动条 ========== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-200);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--green-400);
+        }
+
+        /* ========== 特殊组件 ========== */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 16px;
+            padding-left: 8px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-400);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -13px;
+            top: 12px;
+            bottom: 0;
+            width: 2px;
+            background: var(--green-100);
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .knowledge-card {
+            background: #f7fbf5;
+            border: 1px solid var(--green-200);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .knowledge-card .k-title {
+            font-weight: 600;
+            color: var(--green-800);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .knowledge-card .k-content {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .video-thumb {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .video-info {
+            padding: 12px;
+        }
+
+        .video-info .v-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .video-info .v-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .checkbox-round {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--green-300);
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-round.checked {
+            background: var(--green-500);
+            border-color: var(--green-500);
+        }
+
+        .checkbox-round.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-new {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .trend-up { color: #dc2626; }
+        .trend-down { color: var(--green-600); }
+
+        /* 热搜列表 */
+        .hot-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .hot-item:hover {
+            background: var(--green-50);
+        }
+
+        .hot-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .hot-rank.r1 { background: #fef3c7; color: #dc2626; }
+        .hot-rank.r2 { background: #fee2e2; color: #f97316; }
+        .hot-rank.r3 { background: #fed7aa; color: #ea580c; }
+        .hot-rank.r-n { background: var(--green-50); color: var(--text-light); }
+
+        .hot-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .hot-platform {
+            font-size: 12px;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        /* 每日知识卡片 */
+        .daily-knowledge {
+            background: #f7fbf5;
+            border: 1px solid var(--green-200);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .daily-knowledge::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--green-200) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .daily-knowledge .dk-category {
+            font-size: 12px;
+            color: var(--green-600);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .daily-knowledge .dk-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--green-900);
+            margin-bottom: 10px;
+        }
+
+        .daily-knowledge .dk-content {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.8;
+        }
+
+        /* 学习模块 */
+        .lesson-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lesson-card:hover {
+            border-color: var(--green-300);
+            box-shadow: var(--shadow);
+        }
+
+        .lesson-card.completed {
+            border-color: var(--green-400);
+            background: var(--green-50);
+        }
+
+        .quiz-option {
+            display: block;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--green-300);
+            background: var(--green-50);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--green-500);
+            background: var(--green-50);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--green-500);
+            background: var(--green-50);
+            color: var(--green-700);
+        }
+
+        .quiz-option.wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* 宝宝日记 */
+        .growth-chart {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .milestone-card {
+            background: #f7fbf5;
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--green-200);
+        }
+
+        /* 育儿知识卡片 */
+        .parenting-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .parenting-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .parenting-card .pc-header {
+            padding: 14px 16px;
+            background: #f7fbf5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .parenting-card .pc-header .pc-icon {
+            font-size: 20px;
+        }
+
+        .parenting-card .pc-title {
+            font-weight: 600;
+            color: var(--green-800);
+        }
+
+        .parenting-card .pc-body {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.7;
+        }
+
+        /* 跟练视频卡片 */
+        .workout-target {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--green-100);
+            color: var(--green-700);
+            margin: 2px;
+        }
+
+        .workout-target.active {
+            background: var(--green-500);
+            color: white;
+        }
+
+        /* EQ 提升卡片 */
+        .eq-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--green-400);
+            margin-bottom: 12px;
+        }
+
+        .eq-card .eq-scenario {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .eq-card .eq-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--green-800);
+            margin-bottom: 8px;
+        }
+
+        .eq-card .eq-tip {
+            font-size: 14px;
+            color: var(--text-sub);
+            line-height: 1.7;
+            background: var(--green-50);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* 日期标记 */
+        .date-mark {
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--green-800);
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        /* Tab */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: var(--green-50);
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            width: fit-content;
+        }
+
+        .tab {
+            padding: 7px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-sub);
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--green-700);
+            font-weight: 600;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* 提示 toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--green-700);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 300;
+            display: none;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 主页欢迎卡片 */
+        .welcome-banner {
+            background: linear-gradient(135deg, #e8f5e3, #d4ecce);
+            border: 1px solid var(--green-200);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(124,184,124,0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            background: rgba(124,184,124,0.08);
+            border-radius: 50%;
+        }
+
+        .welcome-banner h2 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        .welcome-banner p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .quick-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .quick-nav-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .quick-nav-item {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .quick-nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .quick-nav-item .qn-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .quick-nav-item .qn-label {
+            font-size: 13px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== 左侧导航 ==================== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-star">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3l2.5 5.5L20 9.5l-4 4 1 6L12 16.5L7 19.5l1-6-4-4 5.5-1L12 3z" fill="#7cb87c" stroke="#5fae5f" stroke-width="0.5"/>
+            </svg>
+        </div>
+        <h1>绿绿工作台</h1>
+    </div>
+    <nav class="nav-list" id="navList">
+        <div class="nav-item active" data-page="home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">首页</span>
+        </div>
+        <div class="nav-item" data-page="finance">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">财务记账</span>
+        </div>
+        <div class="nav-item" data-page="baby">
+            <span class="nav-icon">👶</span>
+            <span class="nav-label">宝宝日记</span>
+        </div>
+        <div class="nav-item" data-page="todo">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">待办清单</span>
+            <span class="nav-badge" id="todoBadge" style="display:none;"></span>
+        </div>
+        <div class="nav-item" data-page="study">
+            <span class="nav-icon">📚</span>
+            <span class="nav-label">学习成长</span>
+        </div>
+        <div class="nav-item" data-page="health">
+            <span class="nav-icon">🏃</span>
+            <span class="nav-label">健康管理</span>
+        </div>
+        <div class="nav-item" data-page="eq">
+            <span class="nav-icon">💚</span>
+            <span class="nav-label">情商提升</span>
+        </div>
+        <div class="nav-item" data-page="hot">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-label">热搜新闻</span>
+        </div>
+        <div class="nav-item" data-page="daily">
+            <span class="nav-icon">🌱</span>
+            <span class="nav-label">每日新知识</span>
+        </div>
+        <div class="nav-item" data-page="douyin">
+            <span class="nav-icon">🎵</span>
+            <span class="nav-label">抖音爆款</span>
+        </div>
+    </nav>
+    <div class="sidebar-toggle" id="sidebarToggle" title="折叠/展开导航">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </div>
+</aside>
+
+<!-- ==================== 移动端遮罩 ==================== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ==================== 主内容区 ==================== -->
+<main class="main">
+
+<!-- ============ 首页 ============ -->
+<div class="page active" id="page-home">
+    <div class="welcome-banner">
+        <h2>欢迎来到绿绿的工作台 🌿</h2>
+        <p>你的个人成长小助手，每一天都在变得更好 ✦</p>
+    </div>
+    <div class="grid-4 mb-16">
+        <div class="quick-nav-item" onclick="switchPage('finance')">
+            <div class="qn-icon">💰</div>
+            <div class="qn-label">财务记账</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('baby')">
+            <div class="qn-icon">👶</div>
+            <div class="qn-label">宝宝日记</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('todo')">
+            <div class="qn-icon">📋</div>
+            <div class="qn-label">待办清单</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('study')">
+            <div class="qn-icon">📚</div>
+            <div class="qn-label">学习成长</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('health')">
+            <div class="qn-icon">🏃</div>
+            <div class="qn-label">健康管理</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('eq')">
+            <div class="qn-icon">💚</div>
+            <div class="qn-label">情商提升</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('hot')">
+            <div class="qn-icon">🔥</div>
+            <div class="qn-label">热搜新闻</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('daily')">
+            <div class="qn-icon">🌱</div>
+            <div class="qn-label">每日新知识</div>
+        </div>
+        <div class="quick-nav-item" onclick="switchPage('douyin')">
+            <div class="qn-icon">🎵</div>
+            <div class="qn-label">抖音爆款</div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <div class="card-title">📋 今日待办</div>
+            <div id="homeTodos"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 本月概览</div>
+            <div class="grid-2">
+                <div class="stat-card">
+                    <div class="stat-label">本月支出</div>
+                    <div class="stat-value" id="homeExpense">¥0</div>
+                </div>
+                <div class="stat-card alt">
+                    <div class="stat-label">本月收入</div>
+                    <div class="stat-value" id="homeIncome">¥0</div>
+                </div>
+            </div>
+            <div class="grid-2 mt-12">
+                <div class="stat-card warm">
+                    <div class="stat-label">当前体重</div>
+                    <div class="stat-value" id="homeWeight">-- kg</div>
+                </div>
+                <div class="stat-card cool">
+                    <div class="stat-label">学习进度</div>
+                    <div class="stat-value" id="homeStudy">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ 财务记账 ============ -->
+<div class="page" id="page-finance">
+    <div class="page-title">💰 财务记账</div>
+    <div class="page-subtitle">看清楚每一分钱的去向，做个精打细算的小能手</div>
+
+    <div class="grid-4 mb-16">
+        <div class="stat-card">
+            <div class="stat-label">本月收入</div>
+            <div class="stat-value" id="finIncome">¥0</div>
+        </div>
+        <div class="stat-card warm">
+            <div class="stat-label">本月支出</div>
+            <div class="stat-value" id="finExpense">¥0</div>
+        </div>
+        <div class="stat-card alt">
+            <div class="stat-label">本月结余</div>
+            <div class="stat-value" id="finBalance">¥0</div>
+        </div>
+        <div class="stat-card cool">
+            <div class="stat-label">预算剩余</div>
+            <div class="stat-value" id="finBudgetRemain">¥0</div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb-16">
+        <div class="card">
+            <div class="flex-between mb-12">
+                <div class="card-title" style="margin:0;">➕ 记一笔</div>
+            </div>
+            <div class="input-group">
+                <label>类型</label>
+                <div class="flex-row">
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;">
+                        <input type="radio" name="finType" value="expense" checked> 支出
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;margin-left:16px;">
+                        <input type="radio" name="finType" value="income"> 收入
+                    </label>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>金额</label>
+                <input type="number" id="finAmount" placeholder="请输入金额" min="0" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>分类</label>
+                <select id="finCategory">
+                </select>
+            </div>
+            <div class="input-group">
+                <label>备注</label>
+                <input type="text" id="finNote" placeholder="写点什么（可选）">
+            </div>
+            <div class="input-group">
+                <label>日期</label>
+                <input type="date" id="finDate">
+            </div>
+            <button class="btn btn-green" onclick="addFinance()">✦ 记一笔</button>
+        </div>
+        <div class="card">
+            <div class="card-title">🎯 预算管理</div>
+            <div class="input-group">
+                <label>本月总预算 (¥)</label>
+                <input type="number" id="finBudgetInput" placeholder="设置月度总预算" min="0" step="100" onchange="saveBudget()">
+            </div>
+            <div id="finBudgetDetail" style="margin-top:8px;"></div>
+            <div class="card-title" style="margin-top:16px;">📊 支出分类分析</div>
+            <div id="finChart" style="min-height:160px;"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;">📒 记账明细</div>
+            <button class="btn btn-soft btn-sm" onclick="clearFinance()">🗑 清空</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>类型</th>
+                        <th>分类</th>
+                        <th>金额</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="finList"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ============ 宝宝日记 ============ -->
+<div class="page" id="page-baby">
+    <div class="page-title">👶 宝宝日记</div>
+    <div class="page-subtitle">记录宝贝成长的每一刻，见证每一点变化</div>
+
+    <div class="grid-4 mb-16">
+        <div class="stat-card">
+            <div class="stat-label">宝宝月龄</div>
+            <div class="stat-value" id="babyAge">--</div>
+        </div>
+        <div class="stat-card alt">
+            <div class="stat-label">当前身高</div>
+            <div class="stat-value" id="babyHeight">-- cm</div>
+        </div>
+        <div class="stat-card warm">
+            <div class="stat-label">当前体重</div>
+            <div class="stat-value" id="babyWeight">-- kg</div>
+        </div>
+        <div class="stat-card cool">
+            <div class="stat-label">记录条数</div>
+            <div class="stat-value" id="babyRecords">0</div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb-16">
+        <div class="card">
+            <div class="card-title">📝 记录今日数据</div>
+            <div class="input-group">
+                <label>记录日期</label>
+                <input type="date" id="babyDate">
+            </div>
+            <div class="input-group">
+                <label>身高 (cm)</label>
+                <input type="number" id="babyHeightInput" placeholder="例如：75" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>体重 (kg)</label>
+                <input type="number" id="babyWeightInput" placeholder="例如：9.5" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>头围 (cm)</label>
+                <input type="number" id="babyHeadInput" placeholder="例如：45" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>今日小记</label>
+                <textarea id="babyNote" rows="3" placeholder="宝宝今天做了什么有趣的事呢？"></textarea>
+            </div>
+            <button class="btn btn-green" onclick="addBabyRecord()">✦ 保存记录</button>
+        </div>
+        <div class="card">
+            <div class="card-title">📈 生长曲线</div>
+            <div class="input-group">
+                <label>宝宝出生日期</label>
+                <input type="date" id="babyBirthday" onchange="saveBabyBirthday()">
+            </div>
+            <canvas id="babyGrowthChart" width="400" height="220" style="width:100%;max-width:400px;height:auto;"></canvas>
+            <p class="text-sm text-gray text-center mt-12" id="growthHint">添加记录后可查看生长趋势</p>
+        </div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">🌟 育儿知识推荐</div>
+        <p class="text-sm text-gray mb-12" id="babyAgeRecommendation">根据宝宝月龄为你推荐以下内容</p>
+        <div id="parentingTips"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📖 成长记录</div>
+        <div id="babyTimeline"></div>
+    </div>
+</div>
+
+<!-- ============ 待办清单 ============ -->
+<div class="page" id="page-todo">
+    <div class="page-title">📋 待办清单</div>
+    <div class="page-subtitle">把要做的事情记下来，一件一件完成它</div>
+
+    <div class="grid-2 mb-16">
+        <div class="card">
+            <div class="card-title">➕ 新建待办</div>
+            <div class="input-group">
+                <label>任务内容</label>
+                <input type="text" id="todoText" placeholder="例如：买牛奶" onkeypress="if(event.key==='Enter')addTodo()">
+            </div>
+            <div class="input-group">
+                <label>分类</label>
+                <select id="todoCategory">
+                    <option value="购物">🛒 购物</option>
+                    <option value="办事">📌 办事</option>
+                    <option value="学习">📖 学习</option>
+                    <option value="生活">🏡 生活</option>
+                    <option value="其他">✦ 其他</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>优先级</label>
+                <select id="todoPriority">
+                    <option value="高">🔴 高</option>
+                    <option value="中" selected>🟡 中</option>
+                    <option value="低">🟢 低</option>
+                </select>
+            </div>
+            <button class="btn btn-green" onclick="addTodo()">✦ 添加</button>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 统计</div>
+            <div class="grid-2">
+                <div class="stat-card">
+                    <div class="stat-label">总待办</div>
+                    <div class="stat-value" id="todoTotal">0</div>
+                </div>
+                <div class="stat-card alt">
+                    <div class="stat-label">已完成</div>
+                    <div class="stat-value" id="todoDone">0</div>
+                </div>
+            </div>
+            <div class="progress-bar mt-12">
+                <div class="progress-fill" id="todoProgress" style="width:0%"></div>
+            </div>
+            <p class="text-sm text-center text-gray mt-12" id="todoProgressText">完成进度 0%</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;">📝 我的清单</div>
+            <div class="tabs" style="margin:0;">
+                <div class="tab active" onclick="filterTodo('all', this)">全部</div>
+                <div class="tab" onclick="filterTodo('active', this)">未完成</div>
+                <div class="tab" onclick="filterTodo('done', this)">已完成</div>
+            </div>
+        </div>
+        <div id="todoList"></div>
+    </div>
+</div>
+
+<!-- ============ 学习成长 ============ -->
+<div class="page" id="page-study">
+    <div class="page-title">📚 学习成长</div>
+    <div class="page-subtitle">备考初级会计证、社工证和学习公基，一起加油！</div>
+
+    <div class="grid-3 mb-16">
+        <div class="stat-card">
+            <div class="stat-label">📋 初级会计</div>
+            <div class="stat-value" id="studyAccProgress">0%</div>
+        </div>
+        <div class="stat-card alt">
+            <div class="stat-label">📋 社工证</div>
+            <div class="stat-value" id="studySocProgress">0%</div>
+        </div>
+        <div class="stat-card cool">
+            <div class="stat-label">📋 公基</div>
+            <div class="stat-value" id="studyPubProgress">0%</div>
+        </div>
+    </div>
+
+    <div class="tabs mb-16">
+        <div class="tab active" onclick="studyTab('learn', this)">📖 学习模块</div>
+        <div class="tab" onclick="studyTab('quiz', this)">✏️ 刷题模块</div>
+    </div>
+
+    <!-- 学习模块 -->
+    <div id="studyLearn">
+        <div class="tabs mb-16">
+            <div class="tab active" onclick="studySubject('accounting', this)">初级会计</div>
+            <div class="tab" onclick="studySubject('social', this)">社工证</div>
+            <div class="tab" onclick="studySubject('public', this)">公基</div>
+        </div>
+        <div id="studyLessons"></div>
+    </div>
+
+    <!-- 刷题模块 -->
+    <div id="studyQuiz" style="display:none;">
+        <div class="tabs mb-16">
+            <div class="tab active" onclick="quizSubject('accounting', this)">初级会计</div>
+            <div class="tab" onclick="quizSubject('social', this)">社工证</div>
+            <div class="tab" onclick="quizSubject('public', this)">公基</div>
+        </div>
+        <div class="grid-3 mb-16">
+            <div class="stat-card">
+                <div class="stat-label">已答题</div>
+                <div class="stat-value" id="quizAnswered">0</div>
+            </div>
+            <div class="stat-card alt">
+                <div class="stat-label">正确数</div>
+                <div class="stat-value" id="quizCorrect">0</div>
+            </div>
+            <div class="stat-card cool">
+                <div class="stat-label">正确率</div>
+                <div class="stat-value" id="quizRate">0%</div>
+            </div>
+        </div>
+        <div class="card" id="quizContainer"></div>
+    </div>
+</div>
+
+<!-- ============ 健康管理 ============ -->
+<div class="page" id="page-health">
+    <div class="page-title">🏃 健康管理</div>
+    <div class="page-subtitle">记录体重变化，找到适合的跟练，瘦出更好的自己</div>
+
+    <div class="grid-4 mb-16">
+        <div class="stat-card">
+            <div class="stat-label">当前体重</div>
+            <div class="stat-value" id="healthWeight">-- kg</div>
+        </div>
+        <div class="stat-card alt">
+            <div class="stat-label">目标体重</div>
+            <div class="stat-value" id="healthTarget">-- kg</div>
+        </div>
+        <div class="stat-card warm">
+            <div class="stat-label">已减重</div>
+            <div class="stat-value" id="healthLoss">0 kg</div>
+        </div>
+        <div class="stat-card cool">
+            <div class="stat-label">记录天数</div>
+            <div class="stat-value" id="healthDays">0</div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb-16">
+        <div class="card">
+            <div class="card-title">⚖️ 记录体重</div>
+            <div class="input-group">
+                <label>日期</label>
+                <input type="date" id="healthDate">
+            </div>
+            <div class="input-group">
+                <label>体重 (kg)</label>
+                <input type="number" id="healthWeightInput" placeholder="例如：65.5" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>目标体重 (kg)</label>
+                <input type="number" id="healthTargetInput" placeholder="例如：55" min="0" step="0.1" onchange="saveHealthTarget()">
+            </div>
+            <button class="btn btn-green" onclick="addHealthRecord()">✦ 记录</button>
+        </div>
+        <div class="card">
+            <div class="card-title">📉 体重变化曲线</div>
+            <canvas id="weightChart" width="400" height="220" style="width:100%;max-width:400px;height:auto;"></canvas>
+            <p class="text-sm text-gray text-center mt-12" id="weightHint">开始记录后可看到趋势</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📊 体重记录</div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>体重 (kg)</th>
+                        <th>变化</th>
+                        <th>距目标</th>
+                    </tr>
+                </thead>
+                <tbody id="healthList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">🍽️ 饮食记录 &amp; 卡路里计算</div>
+        <p class="text-sm text-gray mb-12">记录每餐食物，自动计算热量/卡路里，关注血糖负荷</p>
+        <div class="grid-2 mb-16">
+            <div class="stat-card">
+                <div class="stat-label">今日摄入</div>
+                <div class="stat-value" id="dietCalToday">0 kcal</div>
+            </div>
+            <div class="stat-card warm">
+                <div class="stat-label">建议摄入</div>
+                <div class="stat-value" id="dietCalTarget">1800 kcal</div>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>选择食物</label>
+            <select id="dietFood" onchange="onFoodSelect()"></select>
+        </div>
+        <div class="grid-3">
+            <div class="input-group">
+                <label>分量 (g)</label>
+                <input type="number" id="dietAmount" placeholder="100" min="1" value="100">
+            </div>
+            <div class="input-group">
+                <label>餐次</label>
+                <select id="dietMeal">
+                    <option value="早餐">🌅 早餐</option>
+                    <option value="午餐">☀️ 午餐</option>
+                    <option value="晚餐">🌙 晚餐</option>
+                    <option value="加餐">✦ 加餐</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>热量/kcal (自动)</label>
+                <input type="text" id="dietCalPreview" readonly placeholder="自动计算">
+            </div>
+        </div>
+        <button class="btn btn-green" onclick="addDiet()">✦ 添加饮食记录</button>
+    </div>
+
+    <div class="card">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;">📋 今日饮食明细</div>
+            <span class="text-sm text-gray" id="dietDateLabel"></span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>餐次</th>
+                        <th>食物</th>
+                        <th>分量(g)</th>
+                        <th>热量(kcal)</th>
+                        <th>血糖负荷</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dietList"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="font-bold text-right">合计</td>
+                        <td class="font-bold text-green" id="dietTotalCal">0</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">🎯 跟练视频推荐</div>
+        <p class="text-sm text-gray mb-12">点击下方部位标签，查看对应跟练推荐</p>
+        <div class="flex-wrap mb-16" id="workoutTabs">
+            <span class="workout-target active" onclick="selectWorkout('all', this)">全部</span>
+            <span class="workout-target" onclick="selectWorkout('butt', this)">🩳 瘦屁股</span>
+            <span class="workout-target" onclick="selectWorkout('thigh', this)">👖 瘦大腿</span>
+            <span class="workout-target" onclick="selectWorkout('calf', this)">🦵 瘦小腿</span>
+            <span class="workout-target" onclick="selectWorkout('belly', this)">🫃 瘦肚子</span>
+            <span class="workout-target" onclick="selectWorkout('arm', this)">💪 瘦手臂</span>
+            <span class="workout-target" onclick="selectWorkout('trap', this)">🧘 斜方肌</span>
+            <span class="workout-target" onclick="selectWorkout('back', this)">🔙 瘦背</span>
+        </div>
+        <div class="grid-4" id="workoutVideos"></div>
+    </div>
+</div>
+
+<!-- ============ 情商提升 ============ -->
+<div class="page" id="page-eq">
+    <div class="page-title">💚 情商提升</div>
+    <div class="page-subtitle">情商不是天生的，是练出来的。每天进步一点点</div>
+
+    <div class="grid-3 mb-16">
+        <div class="stat-card">
+            <div class="stat-label">已学技巧</div>
+            <div class="stat-value" id="eqLearned">0</div>
+        </div>
+        <div class="stat-card alt">
+            <div class="stat-label">本周练习</div>
+            <div class="stat-value" id="eqPractice">0</div>
+        </div>
+        <div class="stat-card cool">
+            <div class="stat-label">情商等级</div>
+            <div class="stat-value" id="eqLevel">初学者</div>
+        </div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">🌟 今日情商小课</div>
+        <div id="eqDailyTip"></div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">📚 情商学习地图</div>
+        <div class="tabs mb-16">
+            <div class="tab active" onclick="eqTab('communication', this)">💬 沟通技巧</div>
+            <div class="tab" onclick="eqTab('emotion', this)">😊 情绪管理</div>
+            <div class="tab" onclick="eqTab('empathy', this)">🤝 共情能力</div>
+            <div class="tab" onclick="eqTab('relationship', this)">👥 人际关系</div>
+            <div class="tab" onclick="eqTab('self', this)">🧠 自我认知</div>
+            <div class="tab" onclick="eqTab('conflict', this)">⚡ 冲突处理</div>
+        </div>
+        <div id="eqContent"></div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="card-title">🧪 情商自测</div>
+        <p class="text-sm text-gray mb-12">通过情景测试题了解你的情商水平</p>
+        <div id="eqTestArea"></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">✍️ 情商日记</div>
+        <p class="text-sm text-gray mb-12">记录今天的社交场景和反思</p>
+        <div class="input-group">
+            <textarea id="eqDiaryInput" rows="3" placeholder="今天发生了什么？你的感受如何？下次怎样可以做得更好？"></textarea>
+        </div>
+        <button class="btn btn-green btn-sm" onclick="addEqDiary()">✦ 记录反思</button>
+        <div id="eqDiaryList" class="mt-12"></div>
+    </div>
+</div>
+
+<!-- ============ 热搜新闻 ============ -->
+<div class="page" id="page-hot">
+    <div class="page-title">🔥 热搜新闻</div>
+    <div class="page-subtitle">各平台今日热点，不错过任何新鲜事</div>
+
+    <div class="tabs mb-16" id="hotTabs">
+        <div class="tab active" onclick="hotTab('weibo', this)">📱 微博</div>
+        <div class="tab" onclick="hotTab('douyin', this)">🎵 抖音</div>
+        <div class="tab" onclick="hotTab('bilibili', this)">📺 B站</div>
+        <div class="tab" onclick="hotTab('zhihu', this)">💡 知乎</div>
+        <div class="tab" onclick="hotTab('toutiao', this)">📰 头条</div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;" id="hotTitle">微博热搜</div>
+            <div class="flex-row">
+                <span class="date-mark" id="hotDate"></span>
+                <button class="btn btn-soft btn-sm" onclick="refreshHot()">🔄 刷新</button>
+            </div>
+        </div>
+        <div id="hotList"></div>
+    </div>
+</div>
+
+<!-- ============ 每日新知识 ============ -->
+<div class="page" id="page-daily">
+    <div class="page-title">🌱 每日新知识</div>
+    <div class="page-subtitle">脑袋空空？每天学一点，慢慢填满它</div>
+
+    <div class="card mb-16">
+        <div class="card-title">📂 知识分类</div>
+        <div class="flex-wrap" id="dailyCategories"></div>
+    </div>
+
+    <div class="card mb-16">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;">✦ 今日知识</div>
+            <button class="btn btn-soft btn-sm" onclick="nextKnowledge()">🎲 换一个</button>
+        </div>
+        <div id="dailyKnowledge"></div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between mb-12">
+            <div class="card-title" style="margin:0;">📖 我的知识库</div>
+            <span class="text-sm text-gray" id="dailyCount">已学 0 条</span>
+        </div>
+        <div class="input-group">
+            <input type="text" id="dailyNoteInput" placeholder="学到了什么？记下来！">
+        </div>
+        <button class="btn btn-green btn-sm mb-16" onclick="addDailyNote()">✦ 记下来</button>
+        <div id="dailyNoteList"></div>
+    </div>
+</div>
+
+<!-- ============ 抖音爆款 ============ -->
+<div class="page" id="page-douyin">
+    <div class="page-title">🎵 抖音爆款</div>
+    <div class="page-subtitle">冲浪学新梗，带货选品不迷路</div>
+
+    <div class="tabs mb-16">
+        <div class="tab active" onclick="douyinTab('viral', this)">🔥 爆款视频</div>
+        <div class="tab" onclick="douyinTab('product', this)">🛒 带货选品</div>
+    </div>
+
+    <!-- 爆款视频 -->
+    <div id="douyinViralArea">
+        <div class="card mb-16">
+            <div class="flex-between">
+                <div>
+                    <div class="card-title" style="margin:0;">🔥 近3天爆款视频</div>
+                    <p class="text-sm text-gray mt-12" style="margin-top:4px;">冲浪追热点，学新梗不落伍</p>
+                </div>
+                <button class="btn btn-soft btn-sm" onclick="refreshDouyinViral()">🔄 刷新</button>
+            </div>
+        </div>
+        <div id="douyinViralList"></div>
+    </div>
+
+    <!-- 带货选品 -->
+    <div id="douyinProductArea" style="display:none;">
+        <div class="grid-3 mb-16">
+            <div class="stat-card">
+                <div class="stat-label">🔥 爆款商品</div>
+                <div class="stat-value" id="dyProductCount">0</div>
+            </div>
+            <div class="stat-card alt">
+                <div class="stat-label">💰 平均佣金</div>
+                <div class="stat-value" id="dyAvgCommission">--</div>
+            </div>
+            <div class="stat-card cool">
+                <div class="stat-label">📊 热门类目</div>
+                <div class="stat-value" id="dyTopCategory" style="font-size:16px;">--</div>
+            </div>
+        </div>
+        <div class="card mb-16">
+            <div class="flex-between">
+                <div>
+                    <div class="card-title" style="margin:0;">🛒 爆款选品推荐</div>
+                    <p class="text-sm text-gray mt-12" style="margin-top:4px;">高销量、高佣金、适合带货的商品</p>
+                </div>
+                <button class="btn btn-soft btn-sm" onclick="refreshDouyinProducts()">🔄 刷新</button>
+            </div>
+        </div>
+        <div class="flex-wrap mb-16" id="productFilterTabs">
+            <span class="workout-target active" onclick="filterProduct('all', this)">全部</span>
+            <span class="workout-target" onclick="filterProduct('高佣', this)">💰 高佣金</span>
+            <span class="workout-target" onclick="filterProduct('爆款', this)">🔥 高销量</span>
+            <span class="workout-target" onclick="filterProduct('低价', this)">💸 低价引流</span>
+        </div>
+        <div id="douyinProductList"></div>
+    </div>
+
+    <!-- 选品知识小贴士 -->
+    <div class="card mt-16">
+        <div class="card-title">💡 选品小知识</div>
+        <div class="grid-2">
+            <div class="knowledge-card">
+                <div class="k-title">🎯 好产品的三个标准</div>
+                <div class="k-content">1. 有需求（搜索量大）2. 有利润（佣金≥20%）3. 有差异化（别人不好比价）。三个都满足是理想品，满足两个可做。</div>
+            </div>
+            <div class="knowledge-card">
+                <div class="k-title">📊 看数据选品</div>
+                <div class="k-content">关注：转化率（≥3%为优）、退货率（≤15%安全）、佣金比例、达人带货数。数据选品比感觉靠谱。</div>
+            </div>
+            <div class="knowledge-card">
+                <div class="k-title">🔥 跟热点选品</div>
+                <div class="k-content">季节性（夏季防晒冬季保暖）、节日（母亲节礼品）、热点事件（奥运周边）。提前1个月布局。</div>
+            </div>
+            <div class="knowledge-card">
+                <div class="k-title">⚠️ 避坑指南</div>
+                <div class="k-content">避开：1.违规品 2.高退货率服装 3.价格透明大牌 4.过季滞销品 5.三无产品。合规第一，长期主义。</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<!-- 模态框 -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-title" id="modalTitle">提示</div>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-soft" onclick="closeModal()">取消</button>
+            <button class="btn btn-green" id="modalConfirm">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 数据存储 ====================
+function loadData(key, def) {
+    try {
+        const v = localStorage.getItem('green_' + key);
+        return v ? JSON.parse(v) : def;
+    } catch(e) { return def; }
+}
+function saveData(key, data) {
+    localStorage.setItem('green_' + key, JSON.stringify(data));
+}
+
+// ==================== 导航切换 ====================
+function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    window.scrollTo(0, 0);
+    
+    // 切换到宝宝日记或健康管理时重绘图表
+    if(page === 'baby') {
+        setTimeout(() => renderBaby(), 50);
+    }
+    if(page === 'health') {
+        setTimeout(() => renderHealth(), 50);
+    }
+    
+    // 移动端切换页面后自动关闭侧边栏
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => switchPage(item.dataset.page));
+});
+
+// ==================== 侧边栏折叠/展开 ====================
+(function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    const main = document.querySelector('.main');
+    
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    
+    function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    
+    function toggleSidebar() {
+        if (sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+    
+    // 桌面端：从 localStorage 读取折叠偏好
+    const saved = localStorage.getItem('green_sidebar_collapsed');
+    if (saved === 'true' && !isMobile()) {
+        sidebar.classList.add('collapsed');
+        main.style.marginLeft = 'var(--nav-collapsed-w)';
+    }
+    
+    toggleBtn.addEventListener('click', () => {
+        if (isMobile()) {
+            toggleSidebar();
+        } else {
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            main.style.marginLeft = isNowCollapsed ? 'var(--nav-collapsed-w)' : 'var(--nav-w)';
+            localStorage.setItem('green_sidebar_collapsed', isNowCollapsed);
+        }
+    });
+    
+    overlay.addEventListener('click', closeSidebar);
+    
+    // 移动端：给每个页面标题添加菜单按钮
+    function addMobileMenuButtons() {
+        document.querySelectorAll('.mobile-menu-btn').forEach(btn => btn.remove());
+        if (!isMobile()) return;
+        
+        document.querySelectorAll('.page-title').forEach(title => {
+            const btn = document.createElement('button');
+            btn.className = 'mobile-menu-btn';
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openSidebar();
+            });
+            title.insertBefore(btn, title.firstChild);
+        });
+    }
+    
+    addMobileMenuButtons();
+    window.addEventListener('resize', () => {
+        addMobileMenuButtons();
+        if (!isMobile()) {
+            closeSidebar();
+            // 恢复桌面端折叠状态
+            const savedCollapsed = localStorage.getItem('green_sidebar_collapsed') === 'true';
+            sidebar.classList.toggle('collapsed', savedCollapsed);
+            main.style.marginLeft = savedCollapsed ? 'var(--nav-collapsed-w)' : 'var(--nav-w)';
+        } else {
+            sidebar.classList.remove('collapsed');
+            main.style.marginLeft = '';
+        }
+    });
+})();
+
+// ==================== Toast ====================
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ==================== 模态框 ====================
+function showModal(title, body, onConfirm) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('modalOverlay').classList.add('show');
+    const btn = document.getElementById('modalConfirm');
+    btn.onclick = () => {
+        if(onConfirm) onConfirm();
+        closeModal();
+    };
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if(e.target.id === 'modalOverlay') closeModal();
+});
+
+// ==================== 设置默认日期 ====================
+function today() {
+    return new Date().toISOString().split('T')[0];
+}
+
+// ==================== 财务记账 ====================
+let financeData = loadData('finance', []);
+let financeCategoryType = 'expense';
+let financeBudget = loadData('finance_budget', 0); // 月度总预算
+
+// 细化的支出分类（大类+小类）
+const expenseCategories = [
+    { group: '🍔 餐饮', items: ['早餐','午餐','晚餐','夜宵','零食饮料','外卖','聚餐'] },
+    { group: '🚌 交通', items: ['公交地铁','打车网约车','停车费','加油','高铁机票','共享单车'] },
+    { group: '🛒 购物', items: ['服饰鞋帽','美妆护肤','数码电器','家居日用','母婴用品','零食囤货','宠物用品'] },
+    { group: '🏡 居家', items: ['房租房贷','水电燃气','物业费','网费话费','保洁家政'] },
+    { group: '🎉 娱乐', items: ['电影演出','游戏充值','旅游出行','会员订阅','兴趣爱好'] },
+    { group: '🏥 医疗', items: ['门诊看病','药品保健品','体检','牙科眼科','美容护理'] },
+    { group: '📚 教育', items: ['培训课程','书籍文具','考试报名','线上学习'] },
+    { group: '👨‍👩‍👧 人情', items: ['红包礼金','请客送礼','份子钱','节日礼品'] },
+    { group: '✦ 其他', items: ['其他支出'] }
+];
+const incomeCategories = [
+    { group: '💰 工资', items: ['基本工资','奖金','绩效','年终奖'] },
+    { group: '💼 外快', items: ['兼职收入','副业收入','接单报酬'] },
+    { group: '📈 理财', items: ['理财收益','股票基金','利息收入'] },
+    { group: '🎁 其他', items: ['红包礼金','退款返还','报销','其他收入'] }
+];
+
+function updateFinanceCategories() {
+    const type = document.querySelector('input[name="finType"]:checked').value;
+    const sel = document.getElementById('finCategory');
+    financeCategoryType = type;
+    sel.innerHTML = '';
+    const cats = type === 'expense' ? expenseCategories : incomeCategories;
+    cats.forEach(g => {
+        const og = document.createElement('optgroup');
+        og.label = g.group;
+        g.items.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            og.appendChild(opt);
+        });
+        sel.appendChild(og);
+    });
+}
+
+document.querySelectorAll('input[name="finType"]').forEach(r => {
+    r.addEventListener('change', updateFinanceCategories);
+});
+
+function saveBudget() {
+    const v = parseFloat(document.getElementById('finBudgetInput').value);
+    if(v >= 0) {
+        financeBudget = v;
+        saveData('finance_budget', v);
+        renderFinance();
+        showToast('预算已设置 ✦');
+    }
+}
+
+function addFinance() {
+    const amount = parseFloat(document.getElementById('finAmount').value);
+    if(!amount || amount <= 0) { showToast('请输入有效金额'); return; }
+    const type = document.querySelector('input[name="finType"]:checked').value;
+    const category = document.getElementById('finCategory').value;
+    const note = document.getElementById('finNote').value || '';
+    const date = document.getElementById('finDate').value || today();
+
+    financeData.push({ id: Date.now(), type, amount, category, note, date });
+    saveData('finance', financeData);
+    document.getElementById('finAmount').value = '';
+    document.getElementById('finNote').value = '';
+    renderFinance();
+    showToast('记录成功 ✦');
+}
+
+function deleteFinance(id) {
+    financeData = financeData.filter(f => f.id !== id);
+    saveData('finance', financeData);
+    renderFinance();
+    showToast('已删除');
+}
+
+function clearFinance() {
+    if(financeData.length === 0) { showToast('暂无数据'); return; }
+    showModal('清空记账', '确定要清空所有记账记录吗？此操作不可撤销。', () => {
+        financeData = [];
+        saveData('finance', financeData);
+        renderFinance();
+        showToast('已清空');
+    });
+}
+
+function renderFinance() {
+    document.getElementById('finBudgetInput').value = financeBudget || '';
+    const now = new Date();
+    const ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+    const monthData = financeData.filter(f => f.date.startsWith(ym));
+    const income = monthData.filter(f => f.type === 'income').reduce((s,f) => s+f.amount, 0);
+    const expense = monthData.filter(f => f.type === 'expense').reduce((s,f) => s+f.amount, 0);
+    const balance = income - expense;
+    const budgetRemain = financeBudget - expense;
+
+    document.getElementById('finIncome').textContent = '¥' + income.toFixed(2);
+    document.getElementById('finExpense').textContent = '¥' + expense.toFixed(2);
+    document.getElementById('finBalance').textContent = '¥' + balance.toFixed(2);
+    const brEl = document.getElementById('finBudgetRemain');
+    if(brEl) {
+        brEl.textContent = '¥' + (budgetRemain >= 0 ? budgetRemain.toFixed(0) : 0);
+        brEl.parentElement.style.background = budgetRemain < 0
+            ? '#fdf0f0'
+            : '#f7fbf5';
+    }
+
+    document.getElementById('homeExpense').textContent = '¥' + expense.toFixed(0);
+    document.getElementById('homeIncome').textContent = '¥' + income.toFixed(0);
+
+    // 预算详情
+    const bdEl = document.getElementById('finBudgetDetail');
+    if(bdEl) {
+        if(financeBudget > 0) {
+            const pct = Math.min(100, expense / financeBudget * 100);
+            const over = expense > financeBudget;
+            bdEl.innerHTML = `
+                <div class="flex-between text-sm mb-12" style="margin-bottom:4px;">
+                    <span class="text-gray">已用 ¥${expense.toFixed(0)} / ¥${financeBudget.toFixed(0)}</span>
+                    <span class="font-bold ${over?'text-red':'text-green'}">${pct.toFixed(0)}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:${pct}%;background:${over?'#ef4444':'var(--green-400)'}"></div>
+                </div>
+                <p class="text-sm ${over?'text-red':'text-green'} mt-12" style="margin-top:8px;">
+                    ${over ? '⚠️ 已超出预算 ¥' + (expense - financeBudget).toFixed(0) : '✦ 还可花 ¥' + budgetRemain.toFixed(0)}
+                </p>
+            `;
+        } else {
+            bdEl.innerHTML = '<p class="text-sm text-gray">设置月度预算后，这里显示使用情况 📊</p>';
+        }
+    }
+
+    // 列表
+    const list = document.getElementById('finList');
+    if(financeData.length === 0) {
+        list.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📝</div>还没有记账记录，记一笔试试吧</div></td></tr>';
+    } else {
+        list.innerHTML = financeData.sort((a,b) => b.date.localeCompare(a.date)).map(f => `
+            <tr>
+                <td>${f.date}</td>
+                <td><span class="tag ${f.type==='income'?'tag-green':'tag-red'}">${f.type==='income'?'收入':'支出'}</span></td>
+                <td>${f.category}</td>
+                <td class="${f.type==='income'?'text-green':'text-red'} font-bold">${f.type==='income'?'+':'-'}¥${f.amount.toFixed(2)}</td>
+                <td>${f.note || '—'}</td>
+                <td><button class="btn btn-soft btn-sm" onclick="deleteFinance(${f.id})">删除</button></td>
+            </tr>
+        `).join('');
+    }
+
+    // 分类分析
+    renderFinanceChart(expense, monthData);
+}
+
+function renderFinanceChart(totalExpense, monthData) {
+    const chart = document.getElementById('finChart');
+    if(totalExpense === 0) {
+        chart.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div>暂无支出数据</div>';
+        return;
+    }
+    const cats = {};
+    monthData.filter(f => f.type === 'expense').forEach(f => {
+        cats[f.category] = (cats[f.category] || 0) + f.amount;
+    });
+    const sorted = Object.entries(cats).sort((a,b) => b[1] - a[1]);
+    const colors = ['#22c55e','#4ade80','#86efac','#fbbf24','#f59e0b','#14b8a6','#8b5cf6','#ec4899','#6366f1','#f97316','#06b6d4','#a855f7'];
+    chart.innerHTML = sorted.map((c, i) => {
+        const pct = (c[1] / totalExpense * 100).toFixed(1);
+        return `
+            <div style="margin-bottom:10px;">
+                <div class="flex-between text-sm mb-12" style="margin-bottom:4px;">
+                    <span>${c[0]}</span>
+                    <span class="font-bold">¥${c[1].toFixed(0)} (${pct}%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:${pct}%;background:${colors[i % colors.length]}"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ==================== 宝宝日记 ====================
+let babyData = loadData('baby', []);
+let babyBirthday = loadData('babyBirthday', '');
+
+function saveBabyBirthday() {
+    babyBirthday = document.getElementById('babyBirthday').value;
+    saveData('babyBirthday', babyBirthday);
+    renderBaby();
+    showToast('已保存');
+}
+
+function calcBabyAge() {
+    if(!babyBirthday) return null;
+    const birth = new Date(babyBirthday);
+    const now = new Date();
+    const months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+    return months;
+}
+
+function addBabyRecord() {
+    const date = document.getElementById('babyDate').value || today();
+    const height = parseFloat(document.getElementById('babyHeightInput').value) || null;
+    const weight = parseFloat(document.getElementById('babyWeightInput').value) || null;
+    const head = parseFloat(document.getElementById('babyHeadInput').value) || null;
+    const note = document.getElementById('babyNote').value || '';
+
+    if(!height && !weight && !head && !note) { showToast('请至少填写一项'); return; }
+
+    babyData.push({ id: Date.now(), date, height, weight, head, note });
+    saveData('baby', babyData);
+    document.getElementById('babyHeightInput').value = '';
+    document.getElementById('babyWeightInput').value = '';
+    document.getElementById('babyHeadInput').value = '';
+    document.getElementById('babyNote').value = '';
+    renderBaby();
+    showToast('记录成功 ✦');
+}
+
+function renderBaby() {
+    document.getElementById('babyBirthday').value = babyBirthday;
+    const age = calcBabyAge();
+    document.getElementById('babyAge').textContent = age !== null ? age + '个月' : '请设置生日';
+    document.getElementById('babyRecords').textContent = babyData.length;
+
+    const sorted = [...babyData].sort((a,b) => a.date.localeCompare(b.date));
+    const latest = sorted[sorted.length - 1];
+    document.getElementById('babyHeight').textContent = latest && latest.height ? latest.height + ' cm' : '-- cm';
+    document.getElementById('babyWeight').textContent = latest && latest.weight ? latest.weight + ' kg' : '-- kg';
+    document.getElementById('homeWeight').textContent = latest && latest.weight ? latest.weight + ' kg' : '-- kg';
+
+    // 生长曲线
+    drawGrowthChart(sorted);
+
+    // 育儿推荐
+    renderParentingTips(age);
+
+    // 时间线
+    const timeline = document.getElementById('babyTimeline');
+    if(babyData.length === 0) {
+        timeline.innerHTML = '<div class="empty-state"><div class="empty-icon">👶</div>还没有记录，开始记录宝宝成长的每一步吧</div>';
+    } else {
+        timeline.innerHTML = '<div class="timeline">' + babyData.sort((a,b) => b.date.localeCompare(a.date)).map(r => `
+            <div class="timeline-item">
+                <div class="font-bold text-green">${r.date}</div>
+                ${r.height ? `<span class="text-sm">身高: ${r.height}cm </span>`:''}
+                ${r.weight ? `<span class="text-sm">体重: ${r.weight}kg </span>`:''}
+                ${r.head ? `<span class="text-sm">头围: ${r.head}cm </span>`:''}
+                ${r.note ? `<div class="text-sm text-gray mt-12" style="margin-top:4px;">${r.note}</div>`:''}
+            </div>
+        `).join('') + '</div>';
+    }
+}
+
+function drawGrowthChart(data) {
+    const canvas = document.getElementById('babyGrowthChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const cssW = Math.max(rect.width, 300);
+    const cssH = 240;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    const weightData = data.filter(d => d.weight).sort((a,b) => a.date.localeCompare(b.date));
+    const heightData = data.filter(d => d.height).sort((a,b) => a.date.localeCompare(b.date));
+    if(weightData.length < 1 && heightData.length < 1) {
+        document.getElementById('growthHint').textContent = '添加身高/体重记录后可查看生长趋势';
+        return;
+    }
+    document.getElementById('growthHint').textContent = '';
+
+    const w = cssW, h = cssH;
+    const pad = { l: 42, r: 42, t: 32, b: 28 };
+    const cw = w - pad.l - pad.r;
+    const ch = h - pad.t - pad.b;
+
+    // 纵轴范围
+    const weights = weightData.map(d => d.weight);
+    const heights = heightData.map(d => d.height);
+    const minW = weights.length ? Math.min(...weights) - 1 : 0;
+    const maxW = weights.length ? Math.max(...weights) + 1 : 20;
+    const minH = heights.length ? Math.min(...heights) - 5 : 40;
+    const maxH = heights.length ? Math.max(...heights) + 5 : 100;
+
+    // 网格 + 左轴(体重)刻度
+    ctx.strokeStyle = '#e0eed8';
+    ctx.lineWidth = 1;
+    for(let i = 0; i <= 4; i++) {
+        const y = pad.t + ch * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.l, y);
+        ctx.lineTo(w - pad.r, y);
+        ctx.stroke();
+        if(weights.length) {
+            const valW = (maxW - (maxW - minW) * i / 4).toFixed(1);
+            ctx.fillStyle = '#22c55e';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(valW, pad.l - 4, y + 4);
+        }
+        if(heights.length) {
+            const valH = Math.round(maxH - (maxH - minH) * i / 4);
+            ctx.fillStyle = '#f0a83c';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(valH, w - pad.r + 4, y + 4);
+        }
+    }
+
+    // 身高曲线（橙色，右轴）
+    if(heightData.length >= 1) {
+        ctx.strokeStyle = '#f0a83c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        heightData.forEach((d, i) => {
+            const x = pad.l + (heightData.length === 1 ? cw/2 : cw * i / (heightData.length - 1));
+            const y = pad.t + ch * (1 - (d.height - minH) / (maxH - minH));
+            if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        heightData.forEach((d, i) => {
+            const x = pad.l + (heightData.length === 1 ? cw/2 : cw * i / (heightData.length - 1));
+            const y = pad.t + ch * (1 - (d.height - minH) / (maxH - minH));
+            ctx.fillStyle = '#f0a83c';
+            ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    // 体重曲线（绿色，左轴）
+    if(weightData.length >= 1) {
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        weightData.forEach((d, i) => {
+            const x = pad.l + (weightData.length === 1 ? cw/2 : cw * i / (weightData.length - 1));
+            const y = pad.t + ch * (1 - (d.weight - minW) / (maxW - minW));
+            if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        weightData.forEach((d, i) => {
+            const x = pad.l + (weightData.length === 1 ? cw/2 : cw * i / (weightData.length - 1));
+            const y = pad.t + ch * (1 - (d.weight - minW) / (maxW - minW));
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2); ctx.fill();
+        });
+    }
+
+    // 图例
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(pad.l, pad.t - 20, 10, 4);
+    ctx.fillText('体重(kg)', pad.l + 14, pad.t - 15);
+    ctx.fillStyle = '#f0a83c';
+    ctx.fillRect(pad.l + 80, pad.t - 20, 10, 4);
+    ctx.fillText('身高(cm)', pad.l + 94, pad.t - 15);
+}
+
+const parentingData = {
+    0: [
+        { icon: '🤱', title: '母乳/配方奶', content: '新生儿按需喂养，每天8-12次。注意拍嗝，观察大小便次数和颜色判断摄入量。初乳富含抗体，尽量母乳喂养。' },
+        { icon: '😴', title: '睡眠管理', content: '新生儿每天睡眠16-17小时，昼夜不分。白天保持适度光线，晚上减少刺激，帮助建立昼夜节律。仰睡最安全。' },
+        { icon: '👁️', title: '视觉刺激', content: '宝宝能看清20-30cm距离。多和宝宝面对面，做夸张表情，用黑白卡片刺激视觉发育。' },
+        { icon: '🎵', title: '听觉启蒙', content: '宝宝出生即有听觉。多和宝宝说话、唱歌，摇铃声可以引导宝宝转头寻找声源。' },
+        { icon: '🤲', title: '肌肤接触', content: '袋鼠式护理（皮肤贴皮肤）有助于稳定体温、心率和呼吸，增强安全感和亲子连接。' }
+    ],
+    1: [
+        { icon: '🎵', title: '听觉训练', content: '1个月可以听轻柔音乐，摇铃声。多和宝宝说话，用温柔语调，宝宝会逐渐转向声源。' },
+        { icon: '💪', title: '俯卧抬头', content: '每天2-3次俯卧练习，每次1-2分钟，帮助锻炼颈部和背部肌肉，促进抬头能力发展。' },
+        { icon: '😀', title: '社交微笑', content: '1个月末宝宝开始出现社交性微笑。积极回应宝宝的笑，多做面部表情互动，促进社交发展。' },
+        { icon: '🤚', title: '抓握反射', content: '宝宝有握持反射，把手指放宝宝掌心会让其握住。提供不同质感的物品让宝宝触摸。' }
+    ],
+    2: [
+        { icon: '🎨', title: '色彩感知', content: '2个月宝宝对色彩开始有反应，可以引入红、黄、蓝等鲜艳颜色的玩具，距离眼睛20-30cm移动。' },
+        { icon: '🗣️', title: '语言启蒙', content: '多和宝宝"对话"，模仿宝宝的声音，回应宝宝的咿呀声，这是语言发展的重要基础。' },
+        { icon: '🪀', title: '追视训练', content: '用玩具在宝宝眼前20-30cm缓慢移动，练习追视。从左右到上下，锻炼眼球肌肉。' },
+        { icon: '💪', title: '抬头挺胸', content: '俯卧时宝宝能抬头45°甚至90°。增加俯卧时间到每天3-5次，每次3-5分钟。' }
+    ],
+    3: [
+        { icon: '🪀', title: '抓握训练', content: '3个月宝宝开始主动抓握。提供不同材质、大小的玩具，锻炼手眼协调能力。' },
+        { icon: '🔄', title: '翻身练习', content: '用玩具引导宝宝从仰卧翻到侧卧，再到俯卧。每天练习几次，注意安全。' },
+        { icon: '😄', title: '社交互动', content: '宝宝能出声笑，喜欢和人互动。多逗宝宝笑，积极回应宝宝的声音，促进情感交流。' },
+        { icon: '🎵', title: '音乐感知', content: '宝宝对音乐有明确反应，会安静听或手舞足蹈。可以播放不同风格音乐，观察宝宝喜好。' }
+    ],
+    4: [
+        { icon: '🪑', title: '坐立准备', content: '4个月可以靠坐，用靠垫支撑。锻炼背部肌肉，为独坐做准备。' },
+        { icon: '👣', title: '蹬腿运动', content: '宝宝喜欢蹬腿，可以托住腋下让宝宝做"弹跳"动作，锻炼腿部肌肉。' },
+        { icon: '🎨', title: '探索世界', content: '宝宝开始用手嘴探索物品。提供安全的咬胶、布书，满足口欲期探索需求。' },
+        { icon: '🗣️', title: '连续音节', content: '宝宝能发出"baba""mama"等连续音节。积极模仿回应，帮助宝宝建立语言因果关联。' }
+    ],
+    5: [
+        { icon: '🎵', title: '早教音乐', content: '可以听《小星星》《摇篮曲》等经典曲目。节奏明快的音乐可以配合肢体动作，培养节奏感。' },
+        { icon: '📚', title: '绘本启蒙', content: '选择布书、触摸书，和宝宝一起"看"书，指认图片，培养阅读习惯。' },
+        { icon: '🔄', title: '翻身自如', content: '5个月宝宝能自如翻身。注意床上安全，不要让宝宝独自留在高处。地面铺爬行垫更安全。' },
+        { icon: '🤲', title: '双手传递', content: '宝宝能将物品从一手传到另一手。提供小积木、摇铃，练习双手交替抓握。' }
+    ],
+    6: [
+        { icon: '🧸', title: '辅食添加', content: '6个月开始添加辅食。从高铁米粉开始，由稀到稠，由少到多，每次只添加一种新食物观察3-5天。' },
+        { icon: '🪑', title: '独坐练习', content: '6个月可以开始独坐练习，用玩具吸引宝宝坐起来，周围放靠垫保护。' },
+        { icon: '🗣️', title: '名字回应', content: '宝宝开始对自己的名字有反应。多叫宝宝名字，和宝宝说正在做什么，丰富语言环境。' },
+        { icon: '👶', title: '分离焦虑', content: '6个月可能出现分离焦虑。短暂离开时告诉宝宝"妈妈去XX，马上回来"，建立信任感。' }
+    ],
+    7: [
+        { icon: '🤱', title: '爬行准备', content: '7个月可以开始爬行训练。把玩具放在宝宝前方，鼓励宝宝向前够取，锻炼四肢协调。' },
+        { icon: '👋', title: '社交互动', content: '教宝宝"再见""谢谢"等手势，玩躲猫猫游戏，培养社交意识和互动能力。' },
+        { icon: '🥄', title: '辅食进阶', content: '可以从泥糊状过渡到碎末状。尝试蛋黄、肉泥、菜泥。鼓励宝宝用手抓食物，锻炼精细动作。' },
+        { icon: '📖', title: '指认阅读', content: '和宝宝一起看绘本，指着图说名称。宝宝开始理解词语和图片的关联。' }
+    ],
+    8: [
+        { icon: '🎵', title: '音乐律动', content: '8个月宝宝对音乐更有反应。可以听有节奏的儿歌，和宝宝一起拍手、摇晃，培养乐感和协调。' },
+        { icon: '📖', title: '指认游戏', content: '指着图片说名称，让宝宝找。这个月龄宝宝开始理解词语和物体的对应关系。' },
+        { icon: '🧩', title: '精细动作', content: '宝宝能用拇指食指捏取小物。提供溶豆、泡芙练习捏取，同时锻炼手眼协调。' },
+        { icon: '🏠', title: '空间认知', content: '宝宝开始理解"客体永久性"——东西看不见也还存在。躲猫猫、藏玩具游戏特别有趣。' }
+    ],
+    9: [
+        { icon: '🧩', title: '精细动作', content: '9个月可以玩积木、套圈。锻炼拇指和食指的捏取能力，发展精细动作。' },
+        { icon: '🚼', title: '扶站练习', content: '扶着宝宝站立，让宝宝扶着沙发或矮桌站立，锻炼下肢力量。' },
+        { icon: '🗣️', title: '模仿能力', content: '宝宝开始模仿大人的动作和声音。多示范拍手、挥手等动作，鼓励宝宝模仿。' },
+        { icon: '🥄', title: '自主进食', content: '鼓励宝宝自己用手抓食物吃。准备手指食物如蒸软的胡萝卜条、面包条，培养自主进食。' }
+    ],
+    10: [
+        { icon: '🗣️', title: '语言理解', content: '10个月宝宝理解更多词语。多和宝宝说话，描述正在做的事，读简单绘本，丰富语言环境。' },
+        { icon: '🪜', title: '扶走练习', content: '扶着宝宝双手走路，或用推车玩具，鼓励宝宝推着走，为独立行走做准备。' },
+        { icon: '📦', title: '容器游戏', content: '宝宝喜欢把东西放进容器再拿出来。提供盒子和积木，练习放进去、拿出来，理解空间。' },
+        { icon: '📚', title: '绘本互动', content: '选择有翻翻页、触摸页的互动绘本。让宝宝自己翻页，指认图片，问"XX在哪里"。' }
+    ],
+    11: [
+        { icon: '🎨', title: '涂鸦启蒙', content: '11个月可以给宝宝安全蜡笔，让宝宝在纸上"画画"。培养创造力和手部控制。' },
+        { icon: '🎵', title: '动作儿歌', content: '听《头肩膀膝盖脚》《如果感到快乐就拍拍手》等配合动作的儿歌，锻炼模仿能力。' },
+        { icon: '🧩', title: '形状认知', content: '宝宝开始认识简单形状。玩形状盒，教宝宝把圆形放进圆孔，逐步引入更多形状。' },
+        { icon: '🤝', title: '社交礼仪', content: '教宝宝"给""要"等概念。递东西时说"给妈妈"，培养分享意识和社交礼仪。' }
+    ],
+    12: [
+        { icon: '🚶', title: '独立行走', content: '12个月左右宝宝可能开始独立迈步。多鼓励，少抱抱，给宝宝安全的环境自由探索。' },
+        { icon: '📚', title: '阅读习惯', content: '每天固定时间读绘本，形成习惯。选择画面丰富、文字简单的绘本，让宝宝翻页参与。' },
+        { icon: '🗣️', title: '第一批词', content: '宝宝能说出"爸爸""妈妈"等有意义的词。积极回应并扩展，如宝宝说"车"，你可以说"对，红色的小汽车"。' },
+        { icon: '🥛', title: '断奶过渡', content: '1岁可以逐步过渡到三餐两点。奶量每天500ml左右。可以引入全脂牛奶（无过敏情况下）。' }
+    ],
+    15: [
+        { icon: '🏃', title: '跑跳启蒙', content: '15个月宝宝走路渐稳，开始尝试小跑。提供安全空间，鼓励多走多跑，锻炼平衡能力。' },
+        { icon: '🧱', title: '搭积木', content: '宝宝能搭2-3块积木。提供大块积木，练习叠高推倒，培养空间感和因果关系认知。' },
+        { icon: '📖', title: '指物命名', content: '带宝宝出门指认事物："这是树""那是狗狗"。积累词汇量，1岁半左右词汇爆发。' },
+        { icon: '🥄', title: '用勺练习', content: '让宝宝尝试自己用勺吃饭。虽然会洒，但要坚持鼓励，培养独立性和精细动作。' }
+    ],
+    18: [
+        { icon: '🏃', title: '大运动发展', content: '1岁半宝宝能走稳、小跑、扶栏上楼。多进行户外活动，锻炼大运动能力。' },
+        { icon: '🗣️', title: '词汇爆发', content: '18个月左右词汇量快速增长。多读绘本、多聊天，用简单完整句和宝宝说话，避免叠词。' },
+        { icon: '🎨', title: '涂鸦发展', content: '宝宝能画线条和圆圈。提供蜡笔和纸，不教画形，让宝宝自由涂鸦，培养创造力。' },
+        { icon: '🧩', title: '形状匹配', content: '玩简单拼图（2-4块）和形状盒。帮助宝宝理解整体与部分的关系。' },
+        { icon: '🤗', title: '情绪管理', content: '宝宝情绪波动大，开始有自我意识。接纳情绪，用语言帮宝宝表达："你生气了是因为..." ' }
+    ],
+    21: [
+        { icon: '🏃', title: '跑跳自如', content: '21个月宝宝能跑、能踢球、能扶栏上下楼梯。多进行户外运动，发展大运动能力。' },
+        { icon: '🗣️', title: '句子发展', content: '宝宝开始说2-3词的句子。多和宝宝对话，耐心听，积极回应，不纠正发音。' },
+        { icon: '🧩', title: '逻辑启蒙', content: '宝宝开始理解简单因果关系。读"为什么"类绘本，满足好奇心，鼓励提问。' },
+        { icon: '🎨', title: '角色扮演', content: '宝宝喜欢假装游戏。提供玩具电话、厨房玩具，让宝宝模仿大人行为，发展想象力。' }
+    ],
+    24: [
+        { icon: '🏃', title: '运动能力', content: '2岁宝宝能跑能跳，开始尝试双脚跳。每天保证2小时户外活动，促进大运动发展。' },
+        { icon: '📚', title: '阅读习惯', content: '宝宝开始喜欢重复听一个故事。这是正常的，重复有助于学习和安全感。每天亲子阅读20分钟。' },
+        { icon: '🗣️', title: '语言爆发', content: '2岁宝宝能说简单句子，词汇量约200-300。多聊天，用丰富语言描述日常，扩展宝宝的句子。' },
+        { icon: '🧩', title: '颜色形状', content: '教宝宝认识红黄蓝基本色和圆形方形。生活中的物品是最好的教具，如"红色的苹果"。' },
+        { icon: '🚽', title: '如厕训练', content: '2岁左右可以开始如厕训练。选择宝宝感兴趣的便盆，不强迫，成功了才鼓励。' }
+    ],
+    27: [
+        { icon: '🏃', title: '运动发展', content: '2岁3个月宝宝能单脚站片刻，会骑三轮车。多进行跑跳、攀爬活动，发展平衡和协调。' },
+        { icon: '🗣️', title: '语言丰富', content: '宝宝能说3-4词句子，开始用代词"我""你"。多讲故事，鼓励宝宝复述，发展语言逻辑。' },
+        { icon: '🧩', title: '数数启蒙', content: '宝宝开始对数字感兴趣。数楼梯、数水果，在生活中渗透数学概念，从1-5开始。' },
+        { icon: '🎨', title: '创意画画', content: '宝宝画的作品开始有"意义"。听宝宝讲画的是什么，不评价像不像，保护想象力。' }
+    ],
+    30: [
+        { icon: '🏃', title: '大运动', content: '2岁半宝宝能双脚跳、单脚跳。多进行跳跃、攀爬、平衡木等活动，发展运动能力。' },
+        { icon: '📚', title: '认知发展', content: '宝宝开始理解"大/小""多/少"等概念。利用生活场景教学，如"大的给爸爸，小的给你"。' },
+        { icon: '🤝', title: '社交发展', content: '开始和其他小朋友一起玩（平行游戏）。安排小伙伴一起玩，培养社交技能。' },
+        { icon: '🧩', title: '拼图进阶', content: '能完成4-8块拼图。选择宝宝喜欢的图案，从少到多逐步增加难度，培养专注力和逻辑。' },
+        { icon: '🎭', title: '过家家', content: '角色扮演游戏是认知发展的重要方式。陪宝宝玩过家家，发展想象力、语言和社交。' }
+    ],
+    33: [
+        { icon: '🗣️', title: '语言发展', content: '近3岁宝宝能说完整句子，会讲故事。鼓励宝宝描述一天发生的事，锻炼语言表达和记忆。' },
+        { icon: '🧮', title: '数学启蒙', content: '能数到10以上，开始理解数量。数数时指着物品一个一个数，建立一一对应概念。' },
+        { icon: '🎨', title: '艺术探索', content: '尝试撕纸贴画、手指画等多种艺术形式。过程比结果重要，重在探索和表达。' },
+        { icon: '🤝', title: '合作游戏', content: '宝宝开始和同伴合作游戏。教宝宝分享、轮流、等待，发展社交规则意识。' }
+    ],
+    36: [
+        { icon: '🏃', title: '运动全能', content: '3岁宝宝跑跳自如，能单脚跳、骑三轮车。每天保证3小时活动量，其中户外2小时。' },
+        { icon: '📚', title: '自主阅读', content: '宝宝开始"自主阅读"——翻书自言自语。继续亲子共读，也鼓励宝宝自己看书。' },
+        { icon: '🗣️', title: '表达力', content: '3岁宝宝能清楚表达想法和感受。多提问开放性问题，鼓励宝宝完整表达。' },
+        { icon: '🧩', title: '逻辑思维', content: '能分类、排序、找规律。玩积木、拼图、分类游戏，发展逻辑思维和问题解决能力。' },
+        { icon: '🎭', title: '入园准备', content: '3岁可以入园。提前调整作息，培养自理能力（穿衣、吃饭、如厕），减轻分离焦虑。' }
+    ]
+};
+
+function findClosestAge(age) {
+    const ages = Object.keys(parentingData).map(Number).sort((a,b) => a - b);
+    let closest = ages[0];
+    for(let a of ages) { if(a <= age) closest = a; }
+    return parentingData[closest] || [];
+}
+
+function renderParentingTips(age) {
+    const container = document.getElementById('parentingTips');
+    if(age === null) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div>请先设置宝宝出生日期，获取个性化推荐</div>';
+        document.getElementById('babyAgeRecommendation').textContent = '设置出生日期后，将根据月龄推荐育儿知识';
+        return;
+    }
+    const tips = parentingData[age] || findClosestAge(age);
+    document.getElementById('babyAgeRecommendation').textContent = `宝宝现在${age}个月，为你推荐以下内容`;
+    container.innerHTML = '<div class="grid-3">' + tips.map(t => `
+        <div class="parenting-card">
+            <div class="pc-header">
+                <span class="pc-icon">${t.icon}</span>
+                <span class="pc-title">${t.title}</span>
+            </div>
+            <div class="pc-body">${t.content}</div>
+        </div>
+    `).join('') + '</div>';
+}
+
+// ==================== 待办清单 ====================
+let todoData = loadData('todo', []);
+let todoFilter = 'all';
+
+function addTodo() {
+    const text = document.getElementById('todoText').value.trim();
+    if(!text) { showToast('请输入任务内容'); return; }
+    const category = document.getElementById('todoCategory').value;
+    const priority = document.getElementById('todoPriority').value;
+    todoData.push({ id: Date.now(), text, category, priority, done: false, createdAt: today() });
+    saveData('todo', todoData);
+    document.getElementById('todoText').value = '';
+    renderTodo();
+    showToast('已添加 ✦');
+}
+
+function toggleTodo(id) {
+    const t = todoData.find(t => t.id === id);
+    if(t) t.done = !t.done;
+    saveData('todo', todoData);
+    renderTodo();
+}
+
+function deleteTodo(id) {
+    todoData = todoData.filter(t => t.id !== id);
+    saveData('todo', todoData);
+    renderTodo();
+}
+
+function filterTodo(f, el) {
+    todoFilter = f;
+    document.querySelectorAll('#page-todo .tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderTodo();
+}
+
+const catColors = { '购物':'tag-orange','办事':'tag-blue','学习':'tag-purple','生活':'tag-green','其他':'tag-gray' };
+
+function renderTodo() {
+    const total = todoData.length;
+    const done = todoData.filter(t => t.done).length;
+    const pct = total > 0 ? Math.round(done/total*100) : 0;
+
+    document.getElementById('todoTotal').textContent = total;
+    document.getElementById('todoDone').textContent = done;
+    document.getElementById('todoProgress').style.width = pct + '%';
+    document.getElementById('todoProgressText').textContent = `完成进度 ${pct}%`;
+
+    let list = todoData;
+    if(todoFilter === 'active') list = todoData.filter(t => !t.done);
+    if(todoFilter === 'done') list = todoData.filter(t => t.done);
+
+    const container = document.getElementById('todoList');
+    if(list.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>暂无待办，添加一个吧</div>';
+    } else {
+        const pOrder = { '高':0, '中':1, '低':2 };
+        list = list.sort((a,b) => (a.done === b.done ? pOrder[a.priority] - pOrder[b.priority] : (a.done?1:-1)));
+        container.innerHTML = list.map(t => `
+            <div class="todo-item ${t.done?'completed':''}">
+                <div class="checkbox-round ${t.done?'checked':''}" onclick="toggleTodo(${t.id})"></div>
+                <span class="todo-text flex-1" style="flex:1;">${t.text}</span>
+                <span class="tag ${catColors[t.category]||'tag-gray'}">${t.category}</span>
+                <span class="text-sm text-gray">${t.priority}</span>
+                <button class="btn btn-soft btn-sm" onclick="deleteTodo(${t.id})">删除</button>
+            </div>
+        `).join('');
+    }
+
+    // 首页待办
+    const homeTodos = document.getElementById('homeTodos');
+    const active = todoData.filter(t => !t.done).slice(0, 5);
+    if(active.length === 0) {
+        homeTodos.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">🎉</div>所有待办都完成啦！</div>';
+    } else {
+        homeTodos.innerHTML = active.map(t => `
+            <div class="todo-item">
+                <div class="checkbox-round" onclick="toggleTodo(${t.id})"></div>
+                <span style="flex:1;">${t.text}</span>
+                <span class="tag ${catColors[t.category]||'tag-gray'}">${t.category}</span>
+            </div>
+        `).join('');
+    }
+
+    // 导航栏红点
+    const badge = document.getElementById('todoBadge');
+    const activeCount = todoData.filter(t => !t.done).length;
+    if(activeCount > 0) {
+        badge.textContent = activeCount > 99 ? '99+' : activeCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// ==================== 学习成长 ====================
+const studyData = {
+    accounting: {
+        name: '初级会计',
+        progress: loadData('study_acc_progress', 0),
+        lessons: [
+            { id: 'acc1', title: '会计基本概念', content: '会计是以货币为主要计量单位，运用专门的方法对单位的经济活动进行核算和监督的管理活动。会计的基本职能是核算和监督。', topics: ['会计定义','会计职能','会计目标'] },
+            { id: 'acc2', title: '会计要素与等式', content: '会计六要素：资产、负债、所有者权益、收入、费用、利润。基本等式：资产=负债+所有者权益。', topics: ['资产','负债','所有者权益','收入','费用','利润'] },
+            { id: 'acc3', title: '借贷记账法', content: '借贷记账法是以"借"和"贷"为记账符号，对每项经济业务在两个或两个以上账户中以相等金额记账的复式记账法。资产类借增贷减，负债和所有者权益类贷增借减。', topics: ['记账符号','账户结构','试算平衡'] },
+            { id: 'acc4', title: '会计凭证', content: '会计凭证是记录经济业务、明确经济责任并作为记账依据的书面证明。分为原始凭证和记账凭证。', topics: ['原始凭证','记账凭证','凭证审核'] },
+            { id: 'acc5', title: '会计账簿', content: '账簿由一定格式账页组成，以凭证为依据全面、连续、系统地记录经济业务。分为序时账簿、分类账簿和备查账簿。', topics: ['账簿种类','平行登记','对账结账'] },
+            { id: 'acc6', title: '财产清查', content: '通过盘点实物、核对账目查明实存数与账存数是否相符。包括货币资金清查、实物清查和往来款项清查。', topics: ['全面清查','局部清查','银行存款余额调节'] },
+            { id: 'acc7', title: '财务报告', content: '财务报告是企业对外提供的反映企业某一特定日期财务状况和某一会计期间经营成果等会计信息的文件。包括资产负债表、利润表、现金流量表等。', topics: ['资产负债表','利润表','现金流量表'] },
+            { id: 'acc8', title: '收入费用利润', content: '收入是企业日常活动中形成的、导致所有者权益增加的经济利益总流入。费用是导致所有者权益减少的经济利益流出。利润是收入减费用后的净额。', topics: ['收入确认','费用分类','利润计算'] }
+        ]
+    },
+    social: {
+        name: '社工证',
+        progress: loadData('study_soc_progress', 0),
+        lessons: [
+            { id: 'soc1', title: '社会工作概述', content: '社会工作是以利他价值观为指导，以科学的知识为基础，运用科学的方法助人的服务活动。核心价值：尊重、接纳、个别化、保密、不批判。', topics: ['社工定义','核心价值','社工功能'] },
+            { id: 'soc2', title: '社会工作伦理', content: '社工伦理原则：服务、社会公正、个人尊严与价值、人际关系的重要性、诚信、能力。实践中需处理保密、自决、双重关系等伦理困境。', topics: ['伦理原则','伦理困境','伦理决定'] },
+            { id: 'soc3', title: '个案工作', content: '个案工作是社工运用专业知识与方法，通过一对一的专业关系帮助个人或家庭解决问题的方法。主要模式：危机介入、任务中心、人本治疗等。', topics: ['个案模式','接案与结案','评估与干预'] },
+            { id: 'soc4', title: '小组工作', content: '小组工作是通过小组过程和小组动力来促进组员改变和成长的方法。类型：教育小组、成长小组、治疗小组、支持小组。', topics: ['小组类型','小组阶段','小组动力'] },
+            { id: 'soc5', title: '社区工作', content: '社区工作是以社区为对象的社会工作介入方法。模式：地区发展、社会策划、社会行动。关注社区需求评估和社区资源整合。', topics: ['社区模式','需求评估','资源整合'] },
+            { id: 'soc6', title: '人类行为与社会环境', content: '研究人的行为发展与社会环境的关系。包括生命周期理论、人类行为层次、社会环境系统。理解人在不同阶段的发展任务和面临的问题。', topics: ['生命周期','行为层次','环境系统'] },
+            { id: 'soc7', title: '社会工作法规', content: '相关法规包括《未成年人保护法》《老年人权益保障法》《残疾人保障法》《妇女权益保障法》等。了解各类人群的权益保障内容。', topics: ['未成年人保护','老年人权益','残疾人保障'] },
+            { id: 'soc8', title: '社会工作行政', content: '社工行政是将社会政策转化为社会服务的活动。包括服务策划、资源筹集、项目管理、评估与监督。', topics: ['政策转化','项目管理','评估监督'] }
+        ]
+    },
+    public: {
+        name: '公基',
+        progress: loadData('study_pub_progress', 0),
+        lessons: [
+            { id: 'pub1', title: '政治常识', content: '马克思主义基本原理、中国特色社会主义理论体系、党的基本路线和方针政策。掌握唯物论、辩证法、认识论基本观点。', topics: ['马克思主义','中国特色社会主义','党的理论'] },
+            { id: 'pub2', title: '法律常识', content: '宪法、行政法、民法、刑法基础知识。宪法是根本大法，行政法规范政府行为，民法调整平等主体间关系，刑法规定犯罪与刑罚。', topics: ['宪法','行政法','民法','刑法'] },
+            { id: 'pub3', title: '经济常识', content: '社会主义市场经济基本知识。包括市场机制、宏观调控、财政政策与货币政策、基本经济制度。', topics: ['市场机制','宏观调控','财政货币政策'] },
+            { id: 'pub4', title: '管理常识', content: '行政管理、公共管理基本知识。包括管理职能（计划、组织、领导、控制）、管理原理、组织结构。', topics: ['管理职能','组织结构','决策过程'] },
+            { id: 'pub5', title: '公文写作', content: '法定公文种类：决定、通知、通报、报告、请示、批复、函、纪要等。掌握各类公文格式、行文规则和适用范围。', topics: ['公文种类','行文规则','格式规范'] },
+            { id: 'pub6', title: '科技人文', content: '科技常识：物理、化学、生物基础知识。人文常识：历史、文学、艺术常识。关注前沿科技发展和中华优秀传统文化。', topics: ['科技基础','历史常识','文学艺术'] },
+            { id: 'pub7', title: '国情省情', content: '了解基本国情（人口、资源、环境）、省情（地理、经济、文化）。关注时事政治和国家重大方针政策。', topics: ['基本国情','省情概况','时事政治'] },
+            { id: 'pub8', title: '逻辑判断', content: '逻辑推理基本方法：演绎推理、归纳推理、类比推理。图形推理、定义判断、逻辑判断、言语理解与表达。', topics: ['演绎推理','归纳推理','逻辑判断'] }
+        ]
+    }
+};
+
+// 刷题数据
+const quizData = {
+    accounting: [
+        { q: '会计的基本职能是？', options: ['核算和监督', '记账和算账', '反映和报告', '分析和预测'], answer: 0, explain: '会计的基本职能是核算和监督。' },
+        { q: '基本会计等式是？', options: ['资产=负债', '资产=所有者权益', '资产=负债+所有者权益', '收入-费用=利润'], answer: 2, explain: '资产=负债+所有者权益是基本会计等式。' },
+        { q: '借贷记账法的记账符号是？', options: ['增和减', '借和贷', '收和付', '入和出'], answer: 1, explain: '借贷记账法以"借"和"贷"为记账符号。' },
+        { q: '资产类账户的借方表示？', options: ['减少', '增加', '余额', '无意义'], answer: 1, explain: '资产类账户借方记增加，贷方记减少。' },
+        { q: '下列哪个是原始凭证？', options: ['记账凭证', '收据', '科目汇总表', '资产负债表'], answer: 1, explain: '收据是原始凭证，记录经济业务发生或完成情况。' },
+        { q: '利润表的编制基础是？', options: ['权责发生制', '收付实现制', '历史成本', '谨慎性'], answer: 0, explain: '利润表基于权责发生制编制。' },
+        { q: '下列属于流动资产的是？', options: ['固定资产', '无形资产', '存货', '长期股权投资'], answer: 2, explain: '存货属于流动资产，可在一年内变现或耗用。' },
+        { q: '银行存款日记账属于？', options: ['分类账簿', '序时账簿', '备查账簿', '总账'], answer: 1, explain: '日记账属于序时账簿，按经济业务发生时间顺序登记。' },
+        { q: '资产负债表是反映什么的报表？', options: ['经营成果', '财务状况', '现金流量', '所有者权益变动'], answer: 1, explain: '资产负债表反映企业特定日期的财务状况。' },
+        { q: '试算平衡的依据是？', options: ['会计等式', '借贷记账规则', '平行登记', '收支配比'], answer: 1, explain: '试算平衡依据借贷记账法的记账规则。' },
+        { q: '负债类账户的贷方表示？', options: ['减少', '增加', '余额', '无意义'], answer: 1, explain: '负债类账户贷方记增加，借方记减少。' },
+        { q: '所有者权益类账户结构与哪类账户相似？', options: ['资产类', '负债类', '收入类', '费用类'], answer: 1, explain: '所有者权益类账户结构与负债类相似，贷增借减。' },
+        { q: '收入类账户期末应？', options: ['有借方余额', '有贷方余额', '无余额', '都有可能'], answer: 2, explain: '收入类账户期末结转后无余额。' },
+        { q: '下列属于流动负债的是？', options: ['长期借款', '应付债券', '应付账款', '长期应付款'], answer: 2, explain: '应付账款属于流动负债，需在一年内偿还。' },
+        { q: '复式记账法的基本原理是？', options: ['有借必有贷', '借贷必相等', '单方面记录', '以上都对'], answer: 3, explain: '复式记账法要求有借必有贷，借贷必相等。' },
+        { q: '会计核算的前提不包括？', options: ['会计主体', '持续经营', '权责发生制', '货币计量'], answer: 2, explain: '权责发生制是会计基础，不是会计前提。会计前提是主体、持续经营、会计分期、货币计量。' },
+        { q: '记账凭证的基本要素不包括？', options: ['填制日期', '凭证编号', '会计分录', '单位地址'], answer: 3, explain: '单位地址不是记账凭证的基本要素。' },
+        { q: '存货的计价方法不包括？', options: ['先进先出法', '加权平均法', '后进先出法', '个别计价法'], answer: 2, explain: '新准则取消了后进先出法。' },
+        { q: '固定资产折旧方法不包括？', options: ['年限平均法', '工作量法', '年数总和法', '先进先出法'], answer: 3, explain: '先进先出法是存货计价方法，非折旧方法。' },
+        { q: '现金流量表将现金流量分为？', options: ['两类', '三类', '四类', '五类'], answer: 1, explain: '分为经营活动、投资活动和筹资活动三类现金流量。' },
+        { q: '下列不属于会计信息质量要求的是？', options: ['可靠性', '相关性', '谨慎性', '准确性'], answer: 3, explain: '准确性不是会计信息质量要求。质量要求包括可靠性、相关性、可理解性、可比性、实质重于形式、重要性、谨慎性、及时性。' },
+        { q: '应收账款属于？', options: ['非流动资产', '流动资产', '流动负债', '非流动负债'], answer: 1, explain: '应收账款属于流动资产。' }
+    ],
+    social: [
+        { q: '社会工作的核心价值观不包括？', options: ['尊重', '接纳', '批判', '保密'], answer: 2, explain: '社工价值观强调"不批判"，而非"批判"。' },
+        { q: '个案工作的主要特征是？', options: ['一对一', '小组互动', '社区参与', '政策倡导'], answer: 0, explain: '个案工作是一对一的专业关系。' },
+        { q: '小组工作的类型不包括？', options: ['教育小组', '成长小组', '竞争小组', '治疗小组'], answer: 2, explain: '小组工作类型有教育、成长、治疗、支持小组，无"竞争小组"。' },
+        { q: '社区工作的模式不包括？', options: ['地区发展', '社会策划', '社会行动', '个案干预'], answer: 3, explain: '社区工作模式有地区发展、社会策划、社会行动。' },
+        { q: '社工伦理原则中排第一的是？', options: ['服务', '诚信', '能力', '个人尊严与价值'], answer: 0, explain: '在社工伦理原则中，服务排在第一位。' },
+        { q: '人类行为层次不包括？', options: ['本能行为', '习得行为', '反社会行为', '机械行为'], answer: 3, explain: '行为层次包括本能、习得和社会行为等，无"机械行为"。' },
+        { q: '下列哪个不是社工的三大方法之一？', options: ['个案工作', '小组工作', '社区工作', '行政工作'], answer: 3, explain: '传统社工三大方法是个案、小组和社区工作。' },
+        { q: '危机介入模式的时间限制一般是？', options: ['1-2周', '4-6周', '3-6个月', '1年'], answer: 1, explain: '危机介入一般在4-6周内完成。' },
+        { q: '接纳原则意味着社工应该？', options: ['赞同服务对象行为', '理解但不一定赞同', '必须反对不良行为', '完全认同服务对象'], answer: 1, explain: '接纳是理解和尊重，但不意味着赞同所有行为。' },
+        { q: '社会策划模式强调？', options: ['居民参与', '理性分析', '冲突对抗', '情感支持'], answer: 1, explain: '社会策划模式强调理性分析和专业技术解决社区问题。' },
+        { q: '社工个案工作的开端是？', options: ['接案', '预估', '介入', '评估'], answer: 0, explain: '接案是个案工作的第一步，建立专业关系。' },
+        { q: '马斯洛需求层次最高层是？', options: ['生理需求', '安全需求', '归属与爱', '自我实现'], answer: 3, explain: '自我实现是马斯洛需求层次的最高层。' },
+        { q: '地区发展模式的特点是？', options: ['自上而下', '居民参与', '专业技术主导', '快速解决'], answer: 1, explain: '地区发展模式强调居民参与和社区自助。' },
+        { q: '个案工作的结案应该在？', options: ['介入开始时', '介入中期', '目标达成后', '随时可以'], answer: 2, explain: '结案应在服务目标达成后进行。' },
+        { q: '埃里克森心理社会发展理论中，青春期的核心冲突是？', options: ['信任vs不信任', '自主vs羞怯', '同一性vs角色混乱', '亲密vs孤独'], answer: 2, explain: '青春期核心冲突是同一性对角色混乱。' },
+        { q: '社工的"自决"原则意味着？', options: ['案主可以决定一切', '鼓励案主自己做决定', '社工代替案主决定', '不需要案主参与'], answer: 1, explain: '自决原则鼓励案主在知情的前提下自己做决定，但不意味着案主可以决定一切。' },
+        { q: '小组规范的功能不包括？', options: ['维持秩序', '促进互动', '限制自由', '引导行为'], answer: 2, explain: '小组规范不旨在限制自由，而是促进有效互动。' },
+        { q: '社区需求评估的NAWC方法是指？', options: ['感觉性需求', '表达性需求', '规范性需求和比较性需求', '以上都是'], answer: 3, explain: 'NAWC包括感觉性、表达性、规范性和比较性需求四种。' },
+        { q: '社工评估的主要目的是？', options: ['结案需要', '检验服务效果', '满足机构要求', '以上都是'], answer: 1, explain: '评估的主要目的是检验服务效果和改进服务质量。' },
+        { q: '社会支持网络可分为？', options: ['正式和非正式', '内部和外部', '家庭和社会', '个人和集体'], answer: 0, explain: '社会支持网络分为正式（机构制度）和非正式（亲友邻里）两类。' },
+        { q: '在社工实践中，"充权"（Empowerment）的含义是？', options: ['赋予案主权力', '代替案主做决定', '给予物质帮助', '教育案主'], answer: 0, explain: '充权是帮助弱势群体增强能力和掌控自己生活的权力。' }
+    ],
+    public: [
+        { q: '我国的根本政治制度是？', options: ['人民代表大会制度', '政治协商制度', '民族区域自治', '基层民主'], answer: 0, explain: '人民代表大会制度是我国的根本政治制度。' },
+        { q: '宪法规定我国的根本制度是？', options: ['资本主义制度', '社会主义制度', '共产主义制度', '混合所有制'], answer: 1, explain: '社会主义制度是我国的根本制度。' },
+        { q: '下列哪项不是公民的基本权利？', options: ['选举权', '受教育权', '纳税权', '言论自由'], answer: 2, explain: '纳税是公民的基本义务，不是权利。' },
+        { q: '市场经济中，资源配置的基础性方式是？', options: ['政府计划', '市场机制', '行政命令', '传统习惯'], answer: 1, explain: '市场机制是市场经济中资源配置的基础性方式。' },
+        { q: '下列哪项是法定公文？', options: ['总结', '通知', '计划', '方案'], answer: 1, explain: '通知是法定公文。' },
+        { q: '行政管理的核心职能是？', options: ['计划', '组织', '决策', '控制'], answer: 2, explain: '决策是行政管理的核心职能。' },
+        { q: '马克思主义哲学的核心是？', options: ['唯心主义', '辩证唯物主义', '机械唯物主义', '二元论'], answer: 1, explain: '辩证唯物主义和历史唯物主义是马克思主义哲学的核心。' },
+        { q: '下列哪项不是行政行为特征？', options: ['从属法律性', '裁量性', '营利性', '单方性'], answer: 2, explain: '行政行为不具有营利性。' },
+        { q: '我国民法调整的是？', options: ['行政管理关系', '平等主体间人身和财产关系', '刑事犯罪', '国家政治关系'], answer: 1, explain: '民法调整平等主体之间的人身关系和财产关系。' },
+        { q: '请示属于什么公文？', options: ['下行文', '上行文', '平行文', '泛行文'], answer: 1, explain: '请示是下级向上级行文，属于上行文。' },
+        { q: '我国的基本经济制度是？', options: ['公有制', '私有制', '公有制为主体多种所有制并存', '混合所有制'], answer: 2, explain: '我国基本经济制度是公有制为主体、多种所有制经济共同发展。' },
+        { q: '下列哪项是公民的基本义务？', options: ['选举权', '受教育', '言论自由', '人身自由'], answer: 1, explain: '受教育既是权利也是义务。' },
+        { q: '唯物辩证法的实质和核心是？', options: ['质量互变规律', '对立统一规律', '否定之否定规律', '联系和发展'], answer: 1, explain: '对立统一规律是唯物辩证法的实质和核心。' },
+        { q: '国务院的性质是？', options: ['立法机关', '司法机关', '最高行政机关', '监察机关'], answer: 2, explain: '国务院即中央人民政府，是最高国家权力机关的执行机关，最高行政机关。' },
+        { q: '下列公文不适用于表彰的是？', options: ['决定', '通报', '通知', '命令'], answer: 2, explain: '通知不用于表彰，表彰用决定、通报或命令。' },
+        { q: '宏观经济调控的目标不包括？', options: ['经济增长', '充分就业', '物价稳定', '企业盈利'], answer: 3, explain: '企业盈利不是宏观调控目标。目标是经济增长、充分就业、物价稳定和国际收支平衡。' },
+        { q: '实践是检验真理的唯一标准，因为？', options: ['实践是客观的', '实践具有直接现实性', '实践是普遍的', '实践是历史的'], answer: 1, explain: '实践具有直接现实性，能把主观和客观联系起来检验。' },
+        { q: '下列哪项不是我国的民族自治区？', options: ['内蒙古', '新疆', '西藏', '青海'], answer: 3, explain: '青海是省，不是自治区。五个自治区：内蒙古、新疆、西藏、广西、宁夏。' },
+        { q: '社会公德的核心是？', options: ['爱国守法', '明礼诚信', '团结友善', '为人民服务'], answer: 3, explain: '为人民服务是社会主义道德的核心，也是社会公德的核心。' },
+        { q: '法的渊源不包括？', options: ['宪法', '法律', '判例', '行政法规'], answer: 2, explain: '我国不实行判例法，判例不是法的正式渊源。' },
+        { q: '下列哪项不是市场失灵的表现？', options: ['垄断', '外部效应', '公共物品', '商品丰富'], answer: 3, explain: '商品丰富不是市场失灵。市场失灵包括垄断、外部效应、公共物品和信息不对称。' }
+    ]
+};
+
+let currentStudySubject = 'accounting';
+let studyCompleted = loadData('study_completed', {});
+let quizStats = loadData('quiz_stats', { answered: 0, correct: 0 });
+let currentQuizSubject = 'accounting';
+let currentQuizIndex = 0;
+
+function studyTab(tab, el) {
+    document.querySelectorAll('#page-study > .tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('studyLearn').style.display = tab === 'learn' ? 'block' : 'none';
+    document.getElementById('studyQuiz').style.display = tab === 'quiz' ? 'block' : 'none';
+    if(tab === 'quiz') renderQuiz();
+}
+
+function studySubject(s, el) {
+    currentStudySubject = s;
+    document.querySelectorAll('#studyLearn .tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderLessons();
+}
+
+function renderLessons() {
+    const subject = studyData[currentStudySubject];
+    const container = document.getElementById('studyLessons');
+    document.getElementById('studyAccProgress').textContent = studyData.accounting.progress + '%';
+    document.getElementById('studySocProgress').textContent = studyData.social.progress + '%';
+    document.getElementById('studyPubProgress').textContent = studyData.public.progress + '%';
+
+    const total = subject.lessons.length;
+    const done = subject.lessons.filter(l => studyCompleted[l.id]).length;
+    const pct = Math.round(done/total*100);
+    subject.progress = pct;
+    saveData('study_'+currentStudySubject+'_progress', pct);
+    document.getElementById('homeStudy').textContent = pct + '%';
+
+    container.innerHTML = `
+        <div class="card mb-16">
+            <div class="flex-between">
+                <div>
+                    <div class="card-title" style="margin:0;">${subject.name} · ${done}/${total} 课</div>
+                    <p class="text-sm text-gray mt-12" style="margin-top:4px;">完成 ${pct}%</p>
+                </div>
+                <div style="width:200px;max-width:40%;flex-shrink:0;">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-2">
+            ${subject.lessons.map(l => `
+                <div class="lesson-card ${studyCompleted[l.id]?'completed':''}" onclick="toggleLesson('${l.id}')">
+                    <div class="flex-between">
+                        <div class="font-bold text-green">${l.title}</div>
+                        ${studyCompleted[l.id] ? '<span class="tag tag-green">✓ 已学</span>' : '<span class="badge badge-new">未学</span>'}
+                    </div>
+                    <p class="text-sm text-gray mt-12" style="margin-top:8px;">${l.content}</p>
+                    <div class="flex-wrap mt-12" style="margin-top:8px;">
+                        ${l.topics.map(t => `<span class="tag tag-green">${t}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function toggleLesson(id) {
+    if(studyCompleted[id]) delete studyCompleted[id];
+    else studyCompleted[id] = true;
+    saveData('study_completed', studyCompleted);
+    renderLessons();
+    showToast(studyCompleted[id] ? '标记为已学 ✓' : '已取消标记');
+}
+
+function quizSubject(s, el) {
+    currentQuizSubject = s;
+    currentQuizIndex = 0;
+    document.querySelectorAll('#studyQuiz > .tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderQuiz();
+}
+
+function renderQuiz() {
+    document.getElementById('quizAnswered').textContent = quizStats.answered;
+    document.getElementById('quizCorrect').textContent = quizStats.correct;
+    document.getElementById('quizRate').textContent = quizStats.answered > 0 ? Math.round(quizStats.correct/quizStats.answered*100) + '%' : '0%';
+
+    const questions = quizData[currentQuizSubject];
+    const q = questions[currentQuizIndex];
+    const container = document.getElementById('quizContainer');
+
+    container.innerHTML = `
+        <div class="flex-between mb-16">
+            <span class="tag tag-green">${studyData[currentQuizSubject].name}</span>
+            <span class="text-sm text-gray">第 ${currentQuizIndex+1} / ${questions.length} 题</span>
+        </div>
+        <div class="card-title" style="font-size:16px;margin-bottom:16px;">${q.q}</div>
+        <div id="quizOptions">
+            ${q.options.map((o, i) => `<div class="quiz-option" onclick="answerQuiz(${i})">${o}</div>`).join('')}
+        </div>
+        <div id="quizExplain" style="display:none;margin-top:12px;"></div>
+        <div class="flex-between mt-16" style="margin-top:16px;">
+            <button class="btn btn-soft btn-sm" onclick="prevQuiz()" ${currentQuizIndex===0?'disabled':''}>← 上一题</button>
+            <button class="btn btn-green btn-sm" onclick="nextQuiz()" id="nextQuizBtn" style="display:none;">下一题 →</button>
+        </div>
+    `;
+}
+
+let quizAnsweredFlag = false;
+function answerQuiz(i) {
+    if(quizAnsweredFlag) return;
+    quizAnsweredFlag = true;
+    const q = quizData[currentQuizSubject][currentQuizIndex];
+    const options = document.querySelectorAll('#quizOptions .quiz-option');
+    options.forEach((o, idx) => {
+        o.style.pointerEvents = 'none';
+        if(idx === q.answer) o.classList.add('correct');
+        else if(idx === i) o.classList.add('wrong');
+    });
+    const correct = i === q.answer;
+    quizStats.answered++;
+    if(correct) quizStats.correct++;
+    saveData('quiz_stats', quizStats);
+
+    document.getElementById('quizExplain').style.display = 'block';
+    document.getElementById('quizExplain').innerHTML = `
+        <div class="knowledge-card">
+            <div class="k-title">${correct ? '✅ 回答正确' : '❌ 回答错误'}</div>
+            <div class="k-content">${q.explain}</div>
+        </div>
+    `;
+    document.getElementById('nextQuizBtn').style.display = 'inline-flex';
+    document.getElementById('quizAnswered').textContent = quizStats.answered;
+    document.getElementById('quizCorrect').textContent = quizStats.correct;
+    document.getElementById('quizRate').textContent = Math.round(quizStats.correct/quizStats.answered*100) + '%';
+}
+
+function nextQuiz() {
+    quizAnsweredFlag = false;
+    const questions = quizData[currentQuizSubject];
+    currentQuizIndex = (currentQuizIndex + 1) % questions.length;
+    renderQuiz();
+}
+
+function prevQuiz() {
+    quizAnsweredFlag = false;
+    const questions = quizData[currentQuizSubject];
+    currentQuizIndex = (currentQuizIndex - 1 + questions.length) % questions.length;
+    renderQuiz();
+}
+
+// ==================== 健康管理 ====================
+let healthData = loadData('health', []);
+let healthTarget = loadData('health_target', null);
+
+function saveHealthTarget() {
+    const v = parseFloat(document.getElementById('healthTargetInput').value);
+    if(v > 0) {
+        healthTarget = v;
+        saveData('health_target', v);
+        renderHealth();
+        showToast('目标已设置');
+    }
+}
+
+function addHealthRecord() {
+    const date = document.getElementById('healthDate').value || today();
+    const weight = parseFloat(document.getElementById('healthWeightInput').value);
+    if(!weight || weight <= 0) { showToast('请输入有效体重'); return; }
+    healthData.push({ id: Date.now(), date, weight });
+    saveData('health', healthData);
+    document.getElementById('healthWeightInput').value = '';
+    renderHealth();
+    showToast('记录成功 ✦');
+}
+
+function renderHealth() {
+    document.getElementById('healthTargetInput').value = healthTarget || '';
+    const sorted = [...healthData].sort((a,b) => a.date.localeCompare(b.date));
+    const latest = sorted[sorted.length - 1];
+    const first = sorted[0];
+
+    document.getElementById('healthWeight').textContent = latest ? latest.weight + ' kg' : '-- kg';
+    document.getElementById('healthTarget').textContent = healthTarget ? healthTarget + ' kg' : '-- kg';
+
+    if(latest && first) {
+        const loss = (first.weight - latest.weight).toFixed(1);
+        document.getElementById('healthLoss').textContent = (loss > 0 ? '-' : '+') + Math.abs(loss) + ' kg';
+        document.getElementById('healthLoss').className = 'stat-value';
+    }
+    document.getElementById('healthDays').textContent = sorted.length;
+
+    drawWeightChart(sorted);
+
+    const list = document.getElementById('healthList');
+    if(sorted.length === 0) {
+        list.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">⚖️</div>暂无记录，开始记录体重吧</div></td></tr>';
+    } else {
+        list.innerHTML = sorted.reverse().map((r, i) => {
+            const prev = sorted[sorted.length - 1 - i - 1] || sorted[sorted.length - 1];
+            let change = '';
+            if(prev && prev.date !== r.date) {
+                const diff = (r.weight - prev.weight).toFixed(1);
+                change = diff > 0 ? `<span class="trend-up">+${diff}</span>` : `<span class="trend-down">${diff}</span>`;
+            }
+            const toTarget = healthTarget ? (r.weight - healthTarget).toFixed(1) : '—';
+            return `<tr><td>${r.date}</td><td class="font-bold">${r.weight}</td><td>${change||'—'}</td><td>${toTarget}</td></tr>`;
+        }).join('');
+    }
+}
+
+function drawWeightChart(data) {
+    const canvas = document.getElementById('weightChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const cssW = Math.max(rect.width, 300);
+    const cssH = 220;
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    if(data.length < 1) {
+        document.getElementById('weightHint').textContent = '开始记录后可看到趋势';
+        return;
+    }
+    document.getElementById('weightHint').textContent = '';
+
+    const w = cssW, h = cssH;
+    const pad = { l: 40, r: 10, t: 20, b: 30 };
+    const cw = w - pad.l - pad.r;
+    const ch = h - pad.t - pad.b;
+    const weights = data.map(d => d.weight);
+    let minW = Math.min(...weights) - 1;
+    let maxW = Math.max(...weights) + 1;
+    if(healthTarget) { minW = Math.min(minW, healthTarget - 1); maxW = Math.max(maxW, healthTarget + 1); }
+
+    ctx.strokeStyle = '#e0eed8';
+    ctx.lineWidth = 1;
+    for(let i = 0; i <= 4; i++) {
+        const y = pad.t + ch * i / 4;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+        const val = (maxW - (maxW - minW) * i / 4).toFixed(1);
+        ctx.fillStyle = '#8aaa8a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText(val, pad.l - 5, y + 4);
+    }
+
+    if(healthTarget) {
+        const y = pad.t + ch * (1 - (healthTarget - minW) / (maxW - minW));
+        ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#f59e0b'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText('目标', w - pad.r - 30, y - 5);
+    }
+
+    ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.beginPath();
+    data.forEach((d, i) => {
+        const x = pad.l + (data.length === 1 ? cw/2 : cw * i / (data.length - 1));
+        const y = pad.t + ch * (1 - (d.weight - minW) / (maxW - minW));
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    data.forEach((d, i) => {
+        const x = pad.l + (data.length === 1 ? cw/2 : cw * i / (data.length - 1));
+        const y = pad.t + ch * (1 - (d.weight - minW) / (maxW - minW));
+        ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#1a3c1a'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(d.weight, x, y - 8);
+    });
+
+    ctx.fillStyle = '#8aaa8a'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('体重(kg)', pad.l, pad.t - 6);
+}
+
+// 跟练视频推荐
+const workoutData = [
+    { target: 'butt', title: '蜜桃臀养成·10分钟', duration: '10min', level: '入门', emoji: '🍑', desc: '深蹲+臀桥+侧抬腿，激活臀大肌' },
+    { target: 'butt', title: '翘臀不粗腿·15分钟', duration: '15min', level: '进阶', emoji: '🍑', desc: '弹力带辅助，孤立臀部发力' },
+    { target: 'thigh', title: '大腿内侧紧致·12分钟', duration: '12min', level: '入门', emoji: '👖', desc: '侧卧抬腿+蚌式开合+夹球' },
+    { target: 'thigh', title: '瘦大腿全攻略·20分钟', duration: '20min', level: '进阶', emoji: '👖', desc: '深蹲变式+弓步蹲+侧弓步' },
+    { target: 'calf', title: '小腿拉伸塑形·8分钟', duration: '8min', level: '入门', emoji: '🦵', desc: '下犬式+踩墙拉伸+筋膜放松' },
+    { target: 'calf', title: '消除肌肉型小腿·15分钟', duration: '15min', level: '进阶', emoji: '🦵', desc: '按摩+拉伸+足踝运动' },
+    { target: 'belly', title: '马甲线雕刻·10分钟', duration: '10min', level: '入门', emoji: '🫃', desc: '卷腹+反向卷腹+俄罗斯转体' },
+    { target: 'belly', title: '平坦小腹·15分钟', duration: '15min', level: '进阶', emoji: '🫃', desc: '平板支撑变式+登山跑+死虫式' },
+    { target: 'arm', title: '告别拜拜肉·8分钟', duration: '8min', level: '入门', emoji: '💪', desc: '三头臂屈伸+钻石俯卧撑+颈后臂屈伸' },
+    { target: 'arm', title: '纤细手臂·12分钟', duration: '12min', level: '进阶', emoji: '💪', desc: '小哑铃+弹力带全面手臂训练' },
+    { target: 'trap', title: '消除斜方肌·10分钟', duration: '10min', level: '入门', emoji: '🧘', desc: '颈部拉伸+肩部放松+筋膜球按摩' },
+    { target: 'trap', title: '直角肩养成·15分钟', duration: '15min', level: '进阶', emoji: '🧘', desc: '肩部塑形+上背部强化+体态矫正' },
+    { target: 'back', title: '美背养成·12分钟', duration: '12min', level: '入门', emoji: '🔙', desc: '超人式+反向飞鸟+俯身划船' },
+    { target: 'back', title: '薄背直背·20分钟', duration: '20min', level: '进阶', emoji: '🔙', desc: '弹力带划船+面拉+背部拉伸' }
+];
+
+let currentWorkout = 'all';
+function selectWorkout(t, el) {
+    currentWorkout = t;
+    document.querySelectorAll('#workoutTabs .workout-target').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    renderWorkoutVideos();
+}
+
+function renderWorkoutVideos() {
+    const videos = currentWorkout === 'all' ? workoutData : workoutData.filter(v => v.target === currentWorkout);
+    const colors = ['#dcfce7','#fef3c7','#dbeafe','#fde2e2','#ede9fe','#f0fbeb','#fed7aa','#cffafe'];
+    document.getElementById('workoutVideos').innerHTML = videos.map((v, i) => `
+        <div class="video-card" onclick="showToast('跟练视频: ${v.title}')">
+            <div class="video-thumb" style="background:${colors[i%colors.length]}">${v.emoji}</div>
+            <div class="video-info">
+                <div class="v-title">${v.title}</div>
+                <div class="v-meta">⏱ ${v.duration} · ${v.level}</div>
+                <div class="v-meta mt-12" style="margin-top:6px;">${v.desc}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ==================== 饮食记录 & 卡路里 ====================
+// 常见食物热量表 (每100g kcal) 和血糖负荷(GL)参考
+const foodDB = [
+    { name: '米饭', cal: 116, gl: 17, cat: '主食' },
+    { name: '面条', cal: 137, gl: 19, cat: '主食' },
+    { name: '馒头', cal: 223, gl: 24, cat: '主食' },
+    { name: '面包', cal: 313, gl: 22, cat: '主食' },
+    { name: '燕麦片', cal: 377, gl: 13, cat: '主食' },
+    { name: '红薯', cal: 99, gl: 11, cat: '主食' },
+    { name: '玉米', cal: 112, gl: 9, cat: '主食' },
+    { name: '粥(白米)', cal: 46, gl: 7, cat: '主食' },
+    { name: '全麦面包', cal: 247, gl: 15, cat: '主食' },
+    { name: '鸡蛋(煮)', cal: 144, gl: 0, cat: '蛋白质' },
+    { name: '鸡胸肉', cal: 133, gl: 0, cat: '蛋白质' },
+    { name: '瘦猪肉', cal: 143, gl: 0, cat: '蛋白质' },
+    { name: '瘦牛肉', cal: 106, gl: 0, cat: '蛋白质' },
+    { name: '鱼(草鱼)', cal: 113, gl: 0, cat: '蛋白质' },
+    { name: '虾', cal: 87, gl: 0, cat: '蛋白质' },
+    { name: '豆腐', cal: 81, gl: 1, cat: '蛋白质' },
+    { name: '牛奶', cal: 54, gl: 3, cat: '蛋白质' },
+    { name: '酸奶', cal: 72, gl: 4, cat: '蛋白质' },
+    { name: '豆浆', cal: 31, gl: 1, cat: '蛋白质' },
+    { name: '奶酪', cal: 328, gl: 1, cat: '蛋白质' },
+    { name: '苹果', cal: 53, gl: 4, cat: '水果' },
+    { name: '香蕉', cal: 93, gl: 11, cat: '水果' },
+    { name: '橙子', cal: 48, gl: 4, cat: '水果' },
+    { name: '葡萄', cal: 44, gl: 6, cat: '水果' },
+    { name: '西瓜', cal: 26, gl: 4, cat: '水果' },
+    { name: '草莓', cal: 32, gl: 2, cat: '水果' },
+    { name: '猕猴桃', cal: 61, gl: 5, cat: '水果' },
+    { name: '芒果', cal: 35, gl: 5, cat: '水果' },
+    { name: '西兰花', cal: 36, gl: 1, cat: '蔬菜' },
+    { name: '菠菜', cal: 28, gl: 0, cat: '蔬菜' },
+    { name: '番茄', cal: 20, gl: 1, cat: '蔬菜' },
+    { name: '黄瓜', cal: 16, gl: 0, cat: '蔬菜' },
+    { name: '胡萝卜', cal: 41, gl: 2, cat: '蔬菜' },
+    { name: '生菜', cal: 16, gl: 0, cat: '蔬菜' },
+    { name: '白菜', cal: 20, gl: 0, cat: '蔬菜' },
+    { name: '蘑菇', cal: 24, gl: 0, cat: '蔬菜' },
+    { name: '土豆', cal: 77, gl: 11, cat: '蔬菜' },
+    { name: '薯条', cal: 312, gl: 22, cat: '零食' },
+    { name: '薯片', cal: 547, gl: 17, cat: '零食' },
+    { name: '巧克力', cal: 589, gl: 13, cat: '零食' },
+    { name: '饼干', cal: 433, gl: 20, cat: '零食' },
+    { name: '蛋糕', cal: 347, gl: 24, cat: '零食' },
+    { name: '冰淇淋', cal: 127, gl: 11, cat: '零食' },
+    { name: '可乐', cal: 43, gl: 10, cat: '饮品' },
+    { name: '奶茶', cal: 86, gl: 12, cat: '饮品' },
+    { name: '咖啡(黑)', cal: 2, gl: 0, cat: '饮品' },
+    { name: '果汁', cal: 45, gl: 9, cat: '饮品' },
+    { name: '啤酒', cal: 32, gl: 2, cat: '饮品' },
+    { name: '坚果(混合)', cal: 594, gl: 2, cat: '零食' },
+    { name: '方便面', cal: 436, gl: 25, cat: '主食' }
+];
+
+let dietData = loadData('diet', []);
+
+function initFoodDB() {
+    const sel = document.getElementById('dietFood');
+    if(!sel) return;
+    const groups = {};
+    foodDB.forEach((f, i) => {
+        if(!groups[f.cat]) groups[f.cat] = [];
+        groups[f.cat].push({ ...f, idx: i });
+    });
+    sel.innerHTML = '';
+    Object.entries(groups).forEach(([cat, items]) => {
+        const og = document.createElement('optgroup');
+        og.label = cat;
+        items.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.idx;
+            opt.textContent = `${f.name} (${f.cal}kcal/100g)`;
+            og.appendChild(opt);
+        });
+        sel.appendChild(og);
+    });
+    onFoodSelect();
+}
+
+function onFoodSelect() {
+    const sel = document.getElementById('dietFood');
+    const amt = parseFloat(document.getElementById('dietAmount').value) || 100;
+    const food = foodDB[parseInt(sel.value)];
+    if(food) {
+        const cal = (food.cal * amt / 100).toFixed(0);
+        document.getElementById('dietCalPreview').value = cal + ' kcal';
+    }
+}
+
+function addDiet() {
+    const foodIdx = parseInt(document.getElementById('dietFood').value);
+    const amount = parseFloat(document.getElementById('dietAmount').value);
+    const meal = document.getElementById('dietMeal').value;
+    if(!amount || amount <= 0) { showToast('请输入有效分量'); return; }
+    const food = foodDB[foodIdx];
+    const cal = Math.round(food.cal * amount / 100);
+    const gl = (food.gl * amount / 100).toFixed(1);
+
+    dietData.push({ id: Date.now(), date: today(), food: food.name, amount, cal, gl: parseFloat(gl), meal });
+    saveData('diet', dietData);
+    document.getElementById('dietAmount').value = '100';
+    onFoodSelect();
+    renderDiet();
+    showToast('已记录 ✦');
+}
+
+function deleteDiet(id) {
+    dietData = dietData.filter(d => d.id !== id);
+    saveData('diet', dietData);
+    renderDiet();
+}
+
+function renderDiet() {
+    const todayData = dietData.filter(d => d.date === today());
+    const totalCal = todayData.reduce((s,d) => s + d.cal, 0);
+    document.getElementById('dietCalToday').textContent = totalCal + ' kcal';
+    document.getElementById('dietDateLabel').textContent = '📅 ' + today();
+
+    // 建议摄入：根据体重简单计算（体重*25）
+    const latestWeight = healthData.length > 0 ? [...healthData].sort((a,b) => b.date.localeCompare(a.date))[0].weight : null;
+    const target = latestWeight ? Math.round(latestWeight * 25) : 1800;
+    document.getElementById('dietCalTarget').textContent = target + ' kcal';
+
+    const calEl = document.getElementById('dietCalToday').parentElement;
+    calEl.style.background = totalCal > target ? '#fdf0f0' : '#f7fbf5';
+
+    document.getElementById('dietTotalCal').textContent = totalCal;
+
+    const list = document.getElementById('dietList');
+    if(todayData.length === 0) {
+        list.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🍽️</div>今天还没记录饮食，添加一条吧</div></td></tr>';
+    } else {
+        const mealOrder = { '早餐':0, '午餐':1, '晚餐':2, '加餐':3 };
+        list.innerHTML = todayData.sort((a,b) => mealOrder[a.meal] - mealOrder[b.meal]).map(d => {
+            const glLevel = d.gl < 5 ? '<span class="tag tag-green">低</span>' :
+                            d.gl < 10 ? '<span class="tag tag-orange">中</span>' :
+                            '<span class="tag tag-red">高</span>';
+            return `<tr>
+                <td><span class="tag tag-blue">${d.meal}</span></td>
+                <td>${d.food}</td>
+                <td>${d.amount}</td>
+                <td class="font-bold">${d.cal}</td>
+                <td>${glLevel} ${d.gl}</td>
+                <td><button class="btn btn-soft btn-sm" onclick="deleteDiet(${d.id})">删除</button></td>
+            </tr>`;
+        }).join('');
+    }
+}
+
+// ==================== 情商提升 ====================
+const eqData = {
+    communication: [
+        { scenario: '别人说了让你不舒服的话', title: '先共情后表达', tip: '不要急于反驳或生气。先说"我理解你的意思"，再用"我觉得/我希望"句式表达自己的感受和需求，避免用"你总是/你从不"等指责性语言。' },
+        { scenario: '不知道怎么接话', title: '提问比表达更有魅力', tip: '当不知道说什么时，多问开放式问题。"你是怎么做到的？""后来呢？"让对方多表达，人们喜欢被认真倾听的感觉。' },
+        { scenario: '需要拒绝别人', title: '温和而坚定的拒绝', tip: '拒绝时先感谢对方的信任，简短说明原因，不找太多借口。"谢谢你想到我，但我最近时间比较紧，这次可能参加不了。"' },
+        { scenario: '想表达不同意见', title: '三明治表达法', tip: '先肯定对方合理之处，再说自己的不同看法，最后给出建设性建议。"你说得有道理，我补充一点想法，也许可以尝试..."' },
+        { scenario: '需要批评别人', title: 'BIC反馈模型', tip: '描述行为(Behavior)、影响(Impact)、后果(Consequence)。"你开会迟到3次了(B)，导致团队等10分钟(I)，长期会影响项目进度(C)。"' },
+        { scenario: '汇报工作成果', title: 'STAR法则', tip: '情境(Situation)→任务(Task)→行动(Action)→结果(Result)。用数据说话，突出你的贡献和价值。' },
+        { scenario: '和长辈/上级沟通', title: '请示+方案', tip: '不要只带问题去。提问题时附上2个以上解决方案和你的建议，展现主动性和思考力。' }
+    ],
+    emotion: [
+        { scenario: '感到愤怒时', title: '暂停6秒法则', tip: '情绪上头时，在心里数6秒。这6秒让大脑从情绪脑切换到理性脑。然后深呼吸3次，问自己"我真正在意的是什么"。' },
+        { scenario: '感到焦虑时', title: '5-4-3-2-1着陆法', tip: '找出5个看到的、4个摸到的、3个听到的、2个闻到的、1个尝到的东西。把注意力拉回当下，缓解焦虑。' },
+        { scenario: '感到委屈时', title: '区分事实和感受', tip: '写下发生了什么（事实），再写你的感受。很多时候，困扰我们的是对事件的解读，而非事件本身。尝试换个角度解读。' },
+        { scenario: '感到低落时', title: '微小行动法', tip: '不想做任何事时，定一个"小到不可能失败"的目标。比如只做1个深蹲、只写1句话。动起来后，情绪往往会好转。' },
+        { scenario: '嫉妒别人时', title: '把嫉妒变动力', tip: '嫉妒说明你在乎这件事。把"TA凭什么有"转化为"我也想要，我可以怎么做到"。嫉妒的能量可以变成行动的燃料。' },
+        { scenario: '感到内疚时', title: '区分健康与有毒的内疚', tip: '健康的内疚促使你道歉改变。有毒的内疚反复折磨你却无行动。写下你能做的补救措施，做完后学会原谅自己。' },
+        { scenario: '情绪崩溃时', title: '安全着陆四步法', tip: '1.停止手头的事2.深呼吸3.喝杯温水4.说出"我需要5分钟"。允许自己暂停，不是软弱，是自我照顾。' }
+    ],
+    empathy: [
+        { scenario: '朋友诉苦时', title: '别急着给建议', tip: '对方通常需要的不是解决方案，而是被理解。先说"听起来你很..."帮对方命名情绪，再问"你想聊聊，还是希望我帮你想办法？"' },
+        { scenario: '面对不同观点', title: '理解不等于同意', tip: '先尝试理解对方为什么这么想，不代表你要同意。"我能理解你为什么会这样觉得"是一句很有力量的话。' },
+        { scenario: '别人情绪激动', title: '镜像回应法', tip: '用和对方类似的语气和节奏回应，然后慢慢放缓自己的语速和音调，对方往往会不自觉地跟着平静下来。' },
+        { scenario: '需要关心别人', title: '具体而非笼统', tip: '别说"有事找我"（太笼统），而说"这几天我晚饭后有空，想找人聊可以找我"。具体的关心更让人感到真诚。' },
+        { scenario: '不懂对方感受', title: '情绪命名练习', tip: '平时多积累情绪词汇：不只是"好/不好"，还有失落、窃喜、不甘、释然、忐忑...词汇越丰富，越能精准理解他人。' },
+        { scenario: '对方在气头上', title: '情绪先于问题', tip: '当对方情绪激动时，先处理情绪再处理问题。"我看出来你很生气，这件事确实让人不爽"比"别生气了"有效100倍。' }
+    ],
+    relationship: [
+        { scenario: '新认识一个人', title: '记住名字和细节', tip: '第一次见面记住对方名字，下次见面能叫出来。记住对方提过的小事（宠物名字、爱好），下次主动提起，对方会觉得被重视。' },
+        { scenario: '维持远距离友谊', title: '低频高质量的联络', tip: '不需要天天聊。偶尔分享一篇对方可能感兴趣的文章，配上"想到你可能会喜欢"。比无意义的"在吗"有效得多。' },
+        { scenario: '团队中有摩擦', title: '对事不对人', tip: '讨论问题时用"这个问题"而非"你做的"，聚焦解决方案而非追责。事后主动找对方正常交流，释放善意信号。' },
+        { scenario: '想拉近关系', title: '求助效应', tip: '适当请对方帮个小忙（借本书、推荐餐厅），然后真诚感谢。心理学上，帮过你的人更可能对你有好感，这叫"富兰克林效应"。' },
+        { scenario: '被人误解时', title: '先确认再澄清', tip: '先问"你是说...吗？我理解对了吗？"确认对方意思后再解释。避免各说各话，越说越远。' },
+        { scenario: '进入新圈子', title: '先观察后融入', tip: '新环境中先观察氛围和规则，不急于表现。真诚地赞美圈子里的人，是融入最快的开始。' }
+    ],
+    self: [
+        { scenario: '想了解自己', title: '情绪日记法', tip: '每天记录3件触发情绪的事：什么事→你的感受→你的反应→下次可以怎样。坚持1个月，你会发现自己情绪模式和盲区。' },
+        { scenario: '做重大决定', title: '10-10-10法则', tip: '问自己：这个决定10分钟后、10个月后、10年后我会怎么想？拉长视角，能帮你跳出短期情绪做更理性的选择。' },
+        { scenario: '自我评价偏低', title: '优势清单', tip: '写下你的5个优势（性格、技能、品质），然后写具体事例证明。把注意力从缺点转向优势，自信心会提升。' },
+        { scenario: '目标总完不成', title: 'WOOP模型', tip: '愿望(Wish)→结果(Outcome)→障碍(Obstacle)→计划(Plan)。"如果遇到X障碍，我就做Y"。比纯粹乐观更有效。' },
+        { scenario: '不知道想要什么', title: '嫉妒指路法', tip: '你嫉妒别人什么，往往说明你内心渴望什么。把嫉妒当指南针，找到真正的需求，再制定行动计划。' },
+        { scenario: '经常自我否定', title: '内在对话监测', tip: '留意你对自己说了什么。"我真蠢"vs"这件事我没做好，但我在进步"。像对待好朋友一样对自己说话。' }
+    ],
+    conflict: [
+        { scenario: '和同事有分歧', title: '利益非立场', tip: '别纠缠在立场（"我觉得A方案好"），挖掘背后的利益（你在乎效率，TA在乎安全）。找到满足双方利益的第三方案。' },
+        { scenario: '被冒犯想反击', title: '24小时法则', tip: '想怼回去时，先等24小时。一觉醒来，你会发现大部分"必须说"的话都没必要说了。真要说的，情绪也冷静了。' },
+        { scenario: '冲突升级时', title: '叫停的艺术', tip: '"我感觉我们有点激动了，要不休息10分钟再聊？"这不是退缩，是为有效沟通创造条件。比越吵越远强。' },
+        { scenario: '需要道歉', title: '三步道歉法', tip: '1.具体说做错了什么2.表达理解对方的感受3.说补救措施。避免"如果让你不舒服我道歉"这种敷衍说法。' },
+        { scenario: '面对无理要求', title: '承认+坚持', tip: '"我知道这对你是重要的，但我做不到/不能答应。"先承认对方的立场，再坚定表达自己的边界。' },
+        { scenario: '调解他人冲突', title: '不站队只翻译', tip: '不评判谁对谁错。轮流复述双方观点并确认"我理解对了吗？"让对方感到被听到，冲突自然降温。' }
+    ]
+};
+
+// 情商测试题
+const eqTestQuestions = [
+    { q: '同事在会议上批评了你的方案，你的第一反应是？', options: ['当场反驳，维护自己的方案', '沉默不语，心里很不舒服', '先听完，问清楚具体哪里不好', '会后单独找TA沟通'], answer: 2, explain: '先听完再回应，是高情商的表现。情绪反应可能让冲突升级。' },
+    { q: '朋友连续两次取消约定，你会？', options: ['直接断联，觉得不被重视', '质问对方为什么不守约', '表达理解并问是否遇到了困难', '表面没事但内心疏远'], answer: 2, explain: '高情商的人会先了解原因，表达理解的同时也关心对方。' },
+    { q: '你犯了明显的错误，怎么处理？', options: ['尽量掩盖，不想丢脸', '找借口解释', '主动承认并道歉，提出补救', '等别人发现再说'], answer: 2, explain: '主动承认错误并提出补救，展现责任力和自我认知。' },
+    { q: '聚会上有人说了让你不舒服的话，你会？', options: ['当场翻脸', '强颜欢笑，心里记住', '用幽默化解或转移话题', '事后找TA单独说'], answer: 2, explain: '用幽默化解是社交智慧。事后沟通也行，但当场翻脸或隐忍都不好。' },
+    { q: '领导布置任务时你没听清，你会？', options: ['凭理解硬做，怕问显得笨', '问旁边的同事', '直接请领导再说一遍', '先做，错了再改'], answer: 2, explain: '及时确认比做错重来效率高得多。好领导不怕你问，怕你做错。' },
+    { q: '同事获得晋升你没有，你的感受是？', options: ['表面上恭喜，心里嫉妒', '疏远这个同事', '为TA高兴，同时反思自己', '找领导理论'], answer: 2, explain: '为他人高兴同时自我反思，是情绪管理与自我成长的结合。' },
+    { q: '有人当面赞美你，你的反应是？', options: ['否认"没有没有"', '简单说谢谢，并回赞对方', '转移话题', '详细分析自己配不配'], answer: 1, explain: '大方接受并回赞，既尊重对方也尊重自己。' },
+    { q: '和家人吵架后，通常谁先开口？', options: ['冷战到底，等对方先开口', '坚持自己没错', '主动找台阶和好', '假装什么都没发生'], answer: 2, explain: '主动和好不等于认错，是珍惜关系比输赢重要的表现。' },
+    { q: '进入新环境，你会？', options: ['低调观察，了解规则', '高调表现，展示能力', '只和看起来好相处的人接触', '不主动，等别人来找我'], answer: 0, explain: '先观察了解再行动，是社交智慧。' },
+    { q: '团队方案被否定，你会？', options: ['觉得是领导眼光问题', '把责任推给其他成员', '复盘问题出在哪，下次改进', '从此消极应对'], answer: 2, explain: '高情商的人聚焦解决问题，而非归责。' }
+];
+
+let eqTestIndex = 0;
+let eqTestScore = 0;
+let eqTestAnswered = false;
+let eqTestCompleted = loadData('eq_test_completed', false);
+let eqTestResult = loadData('eq_test_result', null);
+
+function startEqTest() {
+    eqTestIndex = 0;
+    eqTestScore = 0;
+    eqTestAnswered = false;
+    eqTestCompleted = false;
+    renderEqTest();
+}
+
+function renderEqTest() {
+    const area = document.getElementById('eqTestArea');
+    if(eqTestCompleted) {
+        const level = eqTestScore >= 8 ? '情商达人 🌟' :
+                      eqTestScore >= 6 ? '进阶者 🌿' :
+                      eqTestScore >= 4 ? '学徒 🌱' : '初学者 🌰';
+        const advice = eqTestScore >= 8 ? '你的情商很高！继续保持，也可以帮助身边的人成长。' :
+                       eqTestScore >= 6 ? '不错的水平！多练习学习地图中的技巧会更好。' :
+                       eqTestScore >= 4 ? '有基础，但还有提升空间。多关注情绪管理和共情。' :
+                       '别灰心，情商是可练的。从每日小课和沟通技巧开始吧。';
+        area.innerHTML = `
+            <div class="daily-knowledge">
+                <div class="dk-category">测试结果</div>
+                <div class="dk-title">✦ ${level}</div>
+                <div class="dk-content">
+                    得分：${eqTestScore} / ${eqTestQuestions.length}<br><br>
+                    ${advice}
+                </div>
+            </div>
+            <button class="btn btn-green mt-12" onclick="startEqTest()">🔄 重新测试</button>
+        `;
+        return;
+    }
+    const q = eqTestQuestions[eqTestIndex];
+    area.innerHTML = `
+        <div class="flex-between mb-12">
+            <span class="tag tag-green">情商测试</span>
+            <span class="text-sm text-gray">第 ${eqTestIndex+1} / ${eqTestQuestions.length} 题</span>
+        </div>
+        <div class="progress-bar mb-16"><div class="progress-fill" style="width:${eqTestIndex/eqTestQuestions.length*100}%"></div></div>
+        <div class="card-title" style="font-size:16px;margin-bottom:16px;">${q.q}</div>
+        <div id="eqTestOptions">
+            ${q.options.map((o, i) => `<div class="quiz-option" onclick="answerEqTest(${i})">${o}</div>`).join('')}
+        </div>
+        <div id="eqTestExplain" style="display:none;margin-top:12px;"></div>
+    `;
+}
+
+function answerEqTest(i) {
+    if(eqTestAnswered) return;
+    eqTestAnswered = true;
+    const q = eqTestQuestions[eqTestIndex];
+    const options = document.querySelectorAll('#eqTestOptions .quiz-option');
+    options.forEach((o, idx) => {
+        o.style.pointerEvents = 'none';
+        if(idx === q.answer) o.classList.add('correct');
+        else if(idx === i) o.classList.add('wrong');
+    });
+    if(i === q.answer) eqTestScore++;
+    document.getElementById('eqTestExplain').style.display = 'block';
+    document.getElementById('eqTestExplain').innerHTML = `
+        <div class="knowledge-card">
+            <div class="k-title">${i === q.answer ? '✅ 正确' : '❌ 参考答案：' + q.options[q.answer]}</div>
+            <div class="k-content">${q.explain}</div>
+        </div>
+    `;
+    setTimeout(() => {
+        eqTestIndex++;
+        eqTestAnswered = false;
+        if(eqTestIndex >= eqTestQuestions.length) {
+            eqTestCompleted = true;
+            saveData('eq_test_completed', true);
+            saveData('eq_test_result', { score: eqTestScore, total: eqTestQuestions.length });
+        }
+        renderEqTest();
+    }, 2000);
+}
+
+const eqDailyTips = [
+    '今天试着在和人说话时，多等2秒再回应。你会发现对话质量不同。',
+    '找一个今天和你交流的人，回想TA说话时的微表情，猜猜TA的真实感受。',
+    '练习说一次"我理解你的意思"——哪怕你并不同意对方。',
+    '今天拒绝一件不想做的事，用温和而坚定的方式。',
+    '找一个你平时不太注意的人，认真听TA说3分钟话，不插嘴。',
+    '想想最近一次让你不舒服的对话，试着用"我感到...因为...我希望..."的句式重新表达。',
+    '今天主动赞美一个人，具体地说出TA哪里做得好。',
+    '观察一个人的肢体语言，和TA说的话对比，看看是否一致。',
+    '今天遇到不同意见时，先说"你说得有道理"再表达自己。',
+    '试着站在一个你不太认同的人的角度，想TA为什么那么想。'
+];
+
+let eqLearnedCount = loadData('eq_learned', 0);
+let eqDiary = loadData('eq_diary', []);
+let currentEqTab = 'communication';
+let eqDailyIndex = new Date().getDate() % eqDailyTips.length;
+
+function eqTab(t, el) {
+    currentEqTab = t;
+    document.querySelectorAll('#page-eq .tabs .tab').forEach(tab => tab.classList.remove('active'));
+    el.classList.add('active');
+    renderEqContent();
+}
+
+function renderEqContent() {
+    const items = eqData[currentEqTab];
+    document.getElementById('eqContent').innerHTML = items.map((item, i) => `
+        <div class="eq-card">
+            <div class="eq-scenario">场景：${item.scenario}</div>
+            <div class="eq-title">${item.title}</div>
+            <div class="eq-tip">💡 ${item.tip}</div>
+            <div class="mt-12" style="margin-top:10px;">
+                <button class="btn btn-soft btn-sm" onclick="learnEqTip(${i})">${eqLearnedItems[currentEqTab+'_'+i]?'✓ 已掌握':'标记掌握'}</button>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('eqLearned').textContent = Object.keys(eqLearnedItems).length;
+    const level = Object.keys(eqLearnedItems).length < 5 ? '初学者' :
+                  Object.keys(eqLearnedItems).length < 10 ? '学徒' :
+                  Object.keys(eqLearnedItems).length < 16 ? '进阶者' : '情商达人';
+    document.getElementById('eqLevel').textContent = level;
+
+    // 每日小课
+    document.getElementById('eqDailyTip').innerHTML = `
+        <div class="daily-knowledge">
+            <div class="dk-category">今日情商练习</div>
+            <div class="dk-title">✦ 第${eqDailyIndex+1}天</div>
+            <div class="dk-content">${eqDailyTips[eqDailyIndex]}</div>
+        </div>
+    `;
+    document.getElementById('eqPractice').textContent = eqDailyIndex + 1;
+}
+
+let eqLearnedItems = loadData('eq_learned_items', {});
+
+function learnEqTip(i) {
+    const key = currentEqTab + '_' + i;
+    if(eqLearnedItems[key]) delete eqLearnedItems[key];
+    else eqLearnedItems[key] = true;
+    saveData('eq_learned_items', eqLearnedItems);
+    renderEqContent();
+    showToast(eqLearnedItems[key] ? '已标记掌握 ✓' : '已取消');
+}
+
+function addEqDiary() {
+    const text = document.getElementById('eqDiaryInput').value.trim();
+    if(!text) { showToast('请写点什么'); return; }
+    eqDiary.push({ id: Date.now(), date: today(), text });
+    saveData('eq_diary', eqDiary);
+    document.getElementById('eqDiaryInput').value = '';
+    renderEqDiary();
+    showToast('已记录 ✦');
+}
+
+function renderEqDiary() {
+    const container = document.getElementById('eqDiaryList');
+    if(eqDiary.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">✍️</div>还没有反思记录</div>';
+    } else {
+        container.innerHTML = eqDiary.sort((a,b) => b.date.localeCompare(a.date)).map(d => `
+            <div class="timeline-item" style="padding-bottom:12px;">
+                <div class="font-bold text-green">${d.date}</div>
+                <div class="text-sm text-gray mt-12" style="margin-top:4px;">${d.text}</div>
+            </div>
+        `).join('');
+    }
+}
+
+// ==================== 热搜新闻 ====================
+// 备用数据（API 不可用时显示）
+const hotSearchFallback = {
+    weibo: [
+        { text: '实时热搜加载中...', hot: '---' }
+    ],
+    douyin: [{ text: '实时热搜加载中...', hot: '---' }],
+    bilibili: [{ text: '实时热搜加载中...', hot: '---' }],
+    zhihu: [{ text: '实时热搜加载中...', hot: '---' }],
+    toutiao: [{ text: '实时热搜加载中...', hot: '---' }]
+};
+
+let currentHotTab = 'weibo';
+let hotCache = {};
+
+function hotTab(t, el) {
+    currentHotTab = t;
+    document.querySelectorAll('#hotTabs .tab').forEach(tab => tab.classList.remove('active'));
+    el.classList.add('active');
+    renderHot();
+}
+
+async function renderHot() {
+    const names = { weibo:'微博热搜', douyin:'抖音热榜', bilibili:'B站热门', zhihu:'知乎热榜', toutiao:'头条热点' };
+    document.getElementById('hotTitle').textContent = names[currentHotTab];
+
+    const container = document.getElementById('hotList');
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>加载中...</div>';
+
+    let list = null;
+    // 尝试从缓存读取
+    if(hotCache[currentHotTab] && hotCache[currentHotTab].time && Date.now() - hotCache[currentHotTab].time < 3600000) {
+        list = hotCache[currentHotTab].data;
+    } else {
+        // 尝试从后端 API 获取
+        try {
+            const resp = await fetch(`/api/hot/${currentHotTab}`);
+            if(resp.ok) {
+                const data = await resp.json();
+                if(data.list && data.list.length > 0) {
+                    list = data.list;
+                    hotCache[currentHotTab] = { time: Date.now(), data: list };
+                }
+            }
+        } catch(e) {
+            // API 不可用，用备用数据
+        }
+    }
+
+    if(!list || list.length === 0) {
+        list = hotSearchFallback[currentHotTab];
+        document.getElementById('hotDate').textContent = '📅 备用数据（实时接口未连接）';
+    } else {
+        document.getElementById('hotDate').textContent = '📅 ' + new Date().toLocaleString('zh-CN') + ' 更新';
+    }
+
+    container.innerHTML = list.map((item, i) => {
+        const rankClass = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'r-n';
+        const link = item.url ? ` onclick="window.open('${item.url}','_blank')"` : ` onclick="showToast('${item.text}')"`;
+        return `
+            <div class="hot-item" ${link}>
+                <div class="hot-rank ${rankClass}">${i+1}</div>
+                <div class="hot-text">${item.text}</div>
+                <div class="hot-platform">🔥 ${item.hot || ''}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function refreshHot() {
+    hotCache = {};
+    renderHot();
+    showToast('刷新中 ✦');
+}
+
+// ==================== 每日新知识 ====================
+const knowledgeBank = [
+    // 历史
+    { category: '历史', title: '丝绸之路的起源', content: '丝绸之路始于西汉，张骞两次出使西域开辟了从长安经河西走廊到中亚、西亚乃至欧洲的陆路通道。它不仅是贸易路线，更是东西方文明交流的重要桥梁。' },
+    { category: '历史', title: '科举制度演变', content: '科举制始于隋朝(605年)，完善于唐朝，明清达到顶峰，1905年废除。历时1300年，是中国古代选官制度的重大创新，也影响了日韩越等国的文官制度。' },
+    { category: '历史', title: '四大发明的影响', content: '造纸术、印刷术、火药、指南针是中国古代四大发明。造纸和印刷推动了知识传播，火药改变了战争方式，指南针促成大航海时代，深刻影响人类文明进程。' },
+    { category: '历史', title: '万里长城的修建', content: '长城从春秋战国开始修建，秦统一后将各国长城连接。明朝是最后一个大修朝代。总长度超2.1万公里，是世界文化遗产，体现防御思想和工程智慧。' },
+    // 科学
+    { category: '科学', title: '为什么天空是蓝色的？', content: '太阳光包含七种颜色，当阳光穿过大气层时，蓝光波长较短，更容易被空气分子散射。我们的眼睛看到的是被散射的蓝光，所以天空呈蓝色，这叫"瑞利散射"。' },
+    { category: '科学', title: '人体最大的器官是？', content: '皮肤是人体最大的器官。成人皮肤面积约1.5-2平方米，重量约占体重的16%。皮肤有调节体温、感受刺激、排泄废物、合成维生素D等功能。' },
+    { category: '科学', title: '为什么海水是咸的？', content: '海水咸因为含大量盐分（约3.5%），主要是氯化钠。盐分来自地壳岩石风化、火山喷发，经亿万年河流带入海洋。蒸发浓缩使盐分不断累积。' },
+    { category: '科学', title: '彩虹是怎么形成的', content: '彩虹是阳光经雨滴折射、反射、色散形成。阳光进入雨滴时折射，不同波长色光折射角不同而分散，形成七色光弧。背对太阳面对雨幕才可看到。' },
+    { category: '科学', title: '为什么打哈欠会传染？', content: '传染性哈欠与"镜像神经元"有关——看到别人哈欠，大脑自动模拟对方行为。研究还发现：越亲近的人哈欠越容易传染，是一种进化来的共情机制。' },
+    // 经济
+    { category: '经济', title: '什么是GDP？', content: 'GDP即国内生产总值，是一个国家或地区在一定时期内生产的全部最终产品和服务的市场价值。它是衡量经济规模的重要指标，但不能完全代表国民幸福度。' },
+    { category: '经济', title: '通货膨胀怎么理解', content: '通货膨胀是货币供应超过实际需求，导致物价持续上涨、货币购买力下降的现象。适度通胀（2-3%）有利于经济发展，但恶性通胀会严重影响生活。' },
+    { category: '经济', title: '复利的魔力', content: '爱因斯坦说"复利是世界第八大奇迹"。每月存1000元，年化8%，30年后约150万。关键是：开始要早、收益要稳、耐心要够。时间+复利=财富增长。' },
+    { category: '经济', title: '沉没成本是什么', content: '沉没成本是已经发生且无法收回的投入。理性决策应忽略沉没成本，只看未来成本收益。但人常因"已经投入了"而继续投入——这就是为什么该止损时要止损。' },
+    { category: '经济', title: ' CPI 指标怎么看', content: 'CPI即居民消费价格指数，反映物价变化，是衡量通胀的重要指标。CPI涨幅2-3%为健康水平。CPI为负是通货紧缩，过高则是通胀，需宏观调控。' },
+    // 心理
+    { category: '心理', title: '皮格马利翁效应', content: '心理学现象：当人对某事有较高期望时，会不自觉地以行为促使其实现。简单说就是"你期待什么，就更可能得到什么"。多给自己和他人积极的期待。' },
+    { category: '心理', title: '习得性无助', content: '心理学家塞利格曼实验发现：反复经历无法控制的挫折后，人会习得"做什么都没用"的信念，放弃尝试。打破方法：从小事开始获得成功体验。' },
+    { category: '心理', title: '达克效应', content: '越无知的人越自信，越有能力的人越谦虚。这叫"达克效应"——认知越低，越不能认识到自己的不足。保持谦逊和终身学习，是避免达克效应的钥匙。' },
+    { category: '心理', title: '蔡格尼克效应', content: '人天生容易记住未完成的事，忘了已完成的——这叫"蔡格尼克效应"。利用这点：想记住的事先开始做一半，想忘掉烦恼就把它做完或写下来。' },
+    { category: '心理', title: '心流是什么状态', content: '心流是全神贯注投入某活动时的最佳体验，此时时间感消失、效率最高。触发条件：目标清晰+难度匹配能力+即时反馈。找到心流活动，是幸福感的重要来源。' },
+    // 法律
+    { category: '法律', title: '消费者权益知多少', content: '消费者享有安全保障权、知悉真情权、自主选择权、公平交易权、依法求偿权等九项基本权利。遇到消费纠纷可拨打12315投诉。' },
+    { category: '法律', title: '劳动法保护你的什么', content: '劳动法规定：每天工作不超8小时、每周不超40小时；加班需协商，每天不超3小时；工资按月足额发放；不得无故解除劳动合同；享法定节假日、年休假。' },
+    { category: '法律', title: '7天无理由退货', content: '网购7天无理由退货是消费者权益保护法规定，但定作、鲜活、数字化商品等除外。退货要求：商品完好、不影响二次销售、7天内提出。运费通常买家承担。' },
+    // 科技
+    { category: '科技', title: '5G和4G的区别', content: '5G相比4G速度提升约100倍，延迟降低到1毫秒级，可连接设备密度提升100倍。5G三大场景：eMBB(大带宽)、URLLC(低延迟)、mMTC(广连接)。' },
+    { category: '科技', title: '人工智能的三次浪潮', content: 'AI经历三次浪潮：第一次(1950s-70s)符号主义；第二次(1980s-90s)专家系统；第三次(2006至今)深度学习。大模型如GPT标志着AI进入新阶段。' },
+    { category: '科技', title: '什么是区块链', content: '区块链是分布式账本技术：数据加密成块，每块含上一块的哈希值形成链条，数据一旦写入无法篡改。除加密货币外，可用于溯源、版权、合同等需要信任的场景。' },
+    { category: '科技', title: '大数据的4V特征', content: '大数据有4V特征：Volume(体量大)、Velocity(速度快)、Variety(类型多)、Value(价值密度低)。大数据的价值在于从海量数据中提取规律辅助决策。' },
+    // 自然
+    { category: '自然', title: '蜜蜂为何重要？', content: '全球约75%的农作物依赖昆虫授粉，其中蜜蜂贡献最大。爱因斯坦曾说"如果蜜蜂从地球消失，人类只剩4年生命"。保护蜜蜂就是保护粮食安全。' },
+    { category: '自然', title: '北极光是怎么产生的', content: '极光是太阳风中的带电粒子进入地球磁场后，与高层大气中的气体分子碰撞激发出的光。不同气体产生不同颜色：氧绿色/红色，氮蓝色/紫色。' },
+    { category: '自然', title: '为什么秋天叶子变黄？', content: '叶子绿色来自叶绿素。秋天光照减少、温度下降，叶绿素分解，原本被遮盖的胡萝卜素(黄)、花青素(红)显现，所以叶子变黄变红。' },
+    { category: '自然', title: '地震是怎么发生的', content: '地震是地球板块运动导致岩层应力积累到一定程度突然断裂释放能量。震级衡量能量，烈度衡量影响。室内避震应"伏地、遮挡、手抓牢"。' },
+    // 文化
+    { category: '文化', title: '二十四节气智慧', content: '二十四节气是中国古代农耕文明的产物，2016年入选非遗。它根据太阳在黄道上的位置划分，指导农事和养生。如"惊蛰"代表春雷始鸣、蛰虫苏醒。' },
+    { category: '文化', title: '汉字的造字法', content: '汉字造字法称"六书"：象形、指事、会意、形声、转注、假借。如"日"象形，"上"指事，"明"会意，"河"形声。大部分汉字是形声字。' },
+    { category: '文化', title: '中国四大古典名著', content: '《红楼梦》《西游记》《水浒传》《三国演义》并称四大名著。它们是明清小说的巅峰，反映不同时代的社会生活，至今影响深远。' },
+    // 健康
+    { category: '健康', title: '每天该喝多少水？', content: '成年人每天推荐饮水量约1500-1700ml（约8杯）。但需根据活动量、气温调整。不要等渴了才喝，少量多次。晨起一杯温水有助唤醒身体。' },
+    { category: '健康', title: '久坐的危害', content: '久坐被世卫组织列为十大致死致病风险之一。每坐1小时最好起身活动2-3分钟。久坐增加心血管疾病、糖尿病、颈椎病风险，即使运动也难以完全抵消。' },
+    { category: '健康', title: '每天走多少步合适', content: '研究表明每天7000-8000步对健康收益最大，不必强求1万步。走路是性价比最高的运动。关键是坚持，而非单次强度。可分多次完成。' },
+    { category: '健康', title: 'BMI怎么计算', content: 'BMI=体重(kg)/身高²(m²)。18.5-24为正常，<18.5偏瘦，24-28超重，>28肥胖。BMI是体重健康初步判断，但无法区分肌肉和脂肪。' },
+    { category: '健康', title: '睡眠几个阶段', content: '睡眠分浅睡、深睡、REM(快速眼动)阶段，90分钟一个周期。深睡修复身体，REM修复大脑、整理记忆。成人建议7-9小时，约5个周期。' },
+    { category: '健康', title: '膳食纤维的重要性', content: '膳食纤维虽不能被消化，但能促进肠道蠕动、稳定血糖、降低胆固醇。全谷物、蔬菜、豆类含量丰富。每天建议25-30g。精加工食品膳食纤维损失大。' },
+    { category: '健康', title: '蛋白质摄入参考', content: '成人每天蛋白质推荐量约每公斤体重0.8-1.0g（约50-60g）。运动者需1.2-1.6g。鸡蛋、鱼、瘦肉、豆制品都是优质蛋白。' },
+    // 社会
+    { category: '社会', title: '社工是什么职业？', content: '社会工作是专业的助人活动，社工运用个案、小组、社区等方法，帮助个人、家庭和社区解决问题、链接资源。社工不是志愿者，是专业技术人员。' },
+    { category: '社会', title: '社区是什么？', content: '社区是聚居在一定地域范围内的人们所组成的社会生活共同体。社区治理的核心是"共建共治共享"。良好的社区关系有助提升居民幸福感和安全感。' },
+    { category: '社会', title: '志愿者与社工的区别', content: '志愿者基于奉献精神无偿服务，社工是经过专业教育的持证职业人员。社工可带志愿者，做更复杂的问题干预。两者互补，社工支撑体系，志愿者增添温度。' },
+    // 生活
+    { category: '生活', title: '垃圾分类小知识', content: '垃圾分为四类：可回收物（蓝色）、有害垃圾（红色）、厨余垃圾（绿色）、其他垃圾（灰/黑色）。纸巾是其他垃圾，不是可回收！电池是有害垃圾。' },
+    { category: '生活', title: '衣物标签怎么看', content: '衣物洗标：盆+手=手洗；盆+数字30/40=水温℃；方框+圆=机洗；三角=漂白；熨斗图案=熨烫温度；方框+圆+叉=不可干洗。看标签能延长衣物寿命。' },
+    // 新闻
+    { category: '新闻', title: '如何辨别假新闻', content: '辨别假新闻四步：1.看来源（正规媒体？）2.查证据（是否有引用）3.核时间（是否张冠李戴）4.理性判断（是否过于极端）。不信谣不传谣，是数字时代的媒介素养。' },
+    { category: '新闻', title: '新闻5W要素', content: '新闻五要素：Who(谁)、What(发生了什么)、When(时间)、Where(地点)、Why(为什么)。完整的新闻应回答这五问。看新闻也用这五问，可以帮助判断信息完整度和可信度。' },
+    // 养生
+    { category: '养生', title: '中医食疗四性', content: '食物分四性：寒凉（西瓜、绿豆，清热）、温热（生姜、桂圆，温补）、平性（大米、猪肉，日常）、还有寒热偏性。体质不同适合不同食物。' },
+    { category: '养生', title: '子午觉的智慧', content: '子时(23-1点)和午时(11-13点)是阴阳交替之时。子时入睡养胆经，午时小憩养心经。子午觉是中医养生精华：晚11点前睡，午休20-30分钟。' },
+    { category: '养生', title: '泡脚养生', content: '泡脚40℃左右、20分钟为宜，微汗即止。可加生姜片（驱寒）、艾草（温经）、花椒（祛湿）。饭后1小时内不宜泡脚，糖尿病患者需注意水温。' },
+    { category: '养生', title: '春捂秋冻的道理', content: '"春捂"是春季不要急着减衣，倒春寒易感冒；"秋冻"是秋季适度耐寒，提高抗寒力。但老幼体弱者不宜硬冻。这体现了中医"顺应四时"的养生智慧。' },
+    { category: '养生', title: '五色食物养五脏', content: '中医认为五色入五脏：青入肝（菠菜、芹菜）、红入心（番茄、红枣）、黄入脾（玉米、南瓜）、白入肺（百合、梨）、黑入肾（黑豆、黑芝麻）。饮食多样化即营养均衡。' },
+    // 职场
+    { category: '职场', title: 'SMART原则', content: '目标制定用SMART：Specific(具体)、Measurable(可衡量)、Achievable(可达成)、Relevant(相关)、Time-bound(有期限)。例：3个月内减肥5斤，比"我要变瘦"更有效。' },
+    { category: '职场', title: '时间管理四象限', content: '把事按重要+紧急分四类：重要紧急(做)、重要不紧急(计划做)、紧急不重要(委托)、不紧急不重要(不做)。多做重要不紧急的事，是高效能人士的核心习惯。' },
+    { category: '职场', title: '费曼学习法', content: '费曼学习法：选概念→用大白话解释(假设教别人)→找出解释不了的地方→回去查漏补缺→简化再讲。教是最好的学，能讲清楚才算真懂。' },
+    { category: '职场', title: '番茄工作法', content: '专注25分钟→休息5分钟→4个番茄后休息15-30分钟。番茄法利用注意力规律，避免长时间低效。专注时关闭通知，5分钟起身喝水拉伸。' },
+    { category: '职场', title: '5Why分析法', content: '丰田的5Why法：对问题连续问5个"为什么"，逐步深入到根本原因。比如"迟到"→为什么？起晚了→为什么？睡太晚→为什么？追剧→为什么？孤独。治标更要治本。' },
+    { category: '职场', title: '电梯演讲', content: '30秒电梯演讲：我是谁+解决什么问题+我为什么能解决+合作建议。有价值的自我介绍不在于说了多少，而在于对方记住了什么。准备一个属于你的版本。' },
+    // 育儿
+    { category: '育儿', title: '皮亚杰认知发展', content: '皮亚杰将儿童认知分为四阶段：0-2岁感知运动、2-7岁前运算、7-11岁具体运算、11岁+形式运算。了解阶段特点，不要求孩子做超出阶段的事，是科学育儿的基础。' },
+    { category: '育儿', title: '正面管教', content: '正面管教核心理念：和善而坚定。不惩罚不娇纵，把孩子当有尊严的个体。错误是学习机会，不当行为背后有信念。多用鼓励而非赞美，培养内在力量。' },
+    // 财务
+    { category: '财务', title: '资产与负债', content: '《富爸爸穷爸爸》核心：能把钱放进你口袋的是资产，把钱从你口袋掏走的是负债。买房自住是负债（月供、物业），出租房是资产（租金收入）。区分二者是理财起点。' },
+    { category: '财务', title: '4321理财法则', content: '家庭收入分配参考：40%投资（增值）、30%消费（生活）、20%储蓄（备用）、10%保险（保障）。实际按个人调整。先储蓄再消费，是理财纪律的核心。' },
+    { category: '财务', title: '记账的力量', content: '记账第一步是看清钱去哪了。记账1个月能发现"拿铁因子"——每天一杯奶茶一年近2000元。知道才能改变。预算+记账+复盘=良性循环。' },
+    // 沟通
+    { category: '沟通', title: '非暴力沟通', content: '非暴力沟通四步：观察→感受→需要→请求。"看到你没回消息(观察)，我有点不安(感受)，因为我需要确定(需要)，你方便时回复一下好吗(请求)？"避免指责和评判。' },
+    { category: '沟通', title: '倾听的层次', content: '倾听五层：1.忽略2.假装听3.选择性听4.专注听5.共情听。共情听是放下自己的判断，站在对方角度理解。很多时候人们要的不是建议，是被听见。' },
+    // 安全
+    { category: '安全', title: '遇到诈骗怎么办', content: '1.保持冷静不转账2.保存证据（聊天、转账记录）3.立即报警110或反诈中心961104.通知银行冻结账户5.提醒身边人。警惕"安全账户""刷单""中奖"话术。' },
+    { category: '安全', title: '火灾逃生要点', content: '火灾逃生：弯腰前行（烟在上）、湿毛巾捂口鼻、摸门把手判断（烫则不开外逃）、走楼梯不走电梯、被困则堵门缝等待救援。家中常备灭火器、烟雾报警器。' },
+    // 环境
+    { category: '环境', title: '碳中和是什么', content: '碳中和指通过减排+吸收，使净碳排放为零。中国目标2060年前实现碳中和。个人可做：少用一次性物品、节能、绿色出行、植树。碳中和关乎人类共同未来。' },
+    { category: '环境', title: '塑料降解要多久', content: '塑料瓶450年、塑料袋20年、烟头10年、渔线600年。塑料不会消失，只会变碎成微塑料，进入食物链最终回到人体。少用一次性塑料，是每个人的环保选择。' }
+];
+
+const dailyCategories = ['历史','科学','经济','心理','法律','科技','自然','文化','健康','社会','生活','新闻','养生','职场','育儿','财务','沟通','安全','环境'];
+let dailyNotes = loadData('daily_notes', []);
+let currentKnowledgeIndex = Math.floor(Math.random() * knowledgeBank.length);
+
+function renderDailyKnowledge() {
+    // 每个分类展示一条知识
+    const categories = [...new Set(knowledgeBank.map(k => k.category))];
+    const indices = categories.map(cat => {
+        const pool = [];
+        knowledgeBank.forEach((k, i) => { if(k.category === cat) pool.push(i); });
+        // 基于日期随机选，同一天同一分类选同一条
+        const daySeed = today().replace(/-/g,'') + cat;
+        const hash = [...daySeed].reduce((a, c) => a + c.charCodeAt(0), 0);
+        return pool[hash % pool.length];
+    });
+    
+    const cards = indices.map(idx => {
+        const k = knowledgeBank[idx];
+        return `
+        <div class="daily-knowledge" style="margin-bottom:16px;">
+            <div class="dk-category">✦ ${k.category}</div>
+            <div class="dk-title">${k.title}</div>
+            <div class="dk-content">${k.content}</div>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('dailyKnowledge').innerHTML = cards;
+    document.getElementById('dailyCount').textContent = `已学 ${dailyNotes.length} 条`;
+}
+
+function nextKnowledge() {
+    // 重新随机每个分类
+    renderDailyKnowledge();
+}
+
+function renderDailyCategories() {
+    const colors = { '历史':'tag-orange','科学':'tag-blue','经济':'tag-purple','心理':'tag-green','法律':'tag-red','科技':'tag-blue','自然':'tag-green','文化':'tag-orange','健康':'tag-red','社会':'tag-purple','生活':'tag-gray','新闻':'tag-red','养生':'tag-green','职场':'tag-blue','育儿':'tag-orange','财务':'tag-purple','沟通':'tag-green','安全':'tag-red','环境':'tag-green' };
+    document.getElementById('dailyCategories').innerHTML = dailyCategories.map(c => {
+        const idx = knowledgeBank.findIndex(k => k.category === c);
+        return `<span class="workout-target" onclick="jumpToKnowledge(${idx})" style="cursor:pointer;">${c}</span>`;
+    }).join('');
+}
+
+function jumpToKnowledge(idx) {
+    currentKnowledgeIndex = idx;
+    renderDailyKnowledge();
+}
+
+function addDailyNote() {
+    const text = document.getElementById('dailyNoteInput').value.trim();
+    if(!text) { showToast('请写点什么'); return; }
+    dailyNotes.push({ id: Date.now(), date: today(), text, category: knowledgeBank[currentKnowledgeIndex].category });
+    saveData('daily_notes', dailyNotes);
+    document.getElementById('dailyNoteInput').value = '';
+    renderDailyNotes();
+    showToast('已记下 ✦');
+}
+
+function renderDailyNotes() {
+    const container = document.getElementById('dailyNoteList');
+    if(dailyNotes.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px;"><div class="empty-icon">📝</div>还没有学习笔记</div>';
+    } else {
+        container.innerHTML = dailyNotes.sort((a,b) => b.id-a.id).map(n => `
+            <div class="knowledge-card">
+                <div class="flex-between">
+                    <span class="tag tag-green">${n.category}</span>
+                    <span class="text-sm text-gray">${n.date}</span>
+                </div>
+                <div class="k-content mt-12" style="margin-top:6px;">${n.text}</div>
+            </div>
+        `).join('');
+    }
+    document.getElementById('dailyCount').textContent = `已学 ${dailyNotes.length} 条`;
+}
+
+// ==================== 抖音爆款 ====================
+// 备用爆款视频数据
+const douyinViralFallback = [
+    { title: '夏天最后一个好消息', author: '人民网', likes: '426万', plays: '8200万', tag: '社会' },
+    { title: '当外卖小哥遇到暴雨天气', author: '生活观察员', likes: '312万', plays: '6500万', tag: '生活' },
+    { title: '我的00后同事上班第一周', author: '职场新人小王', likes: '287万', plays: '5200万', tag: '职场' },
+    { title: '一个人带娃崩溃的瞬间', author: '育儿日记', likes: '265万', plays: '4800万', tag: '母婴' },
+    { title: '全网最离谱的DIY改造', author: '手工达人', likes: '234万', plays: '4300万', tag: '手工' },
+    { title: '高考结束那个夏天', author: '青春故事', likes: '218万', plays: '3900万', tag: '青春' },
+    { title: '上班族的崩溃日常', author: '搞笑段子', likes: '198万', plays: '3600万', tag: '搞笑' },
+    { title: '给爸妈做一顿饭有多难', author: '生活记录', likes: '176万', plays: '3200万', tag: '生活' },
+    { title: '搬家时才发现的东西', author: '日常分享', likes: '165万', plays: '2900万', tag: '生活' },
+    { title: '当你试图教导孩子写作文', author: '搞笑家庭', likes: '154万', plays: '2700万', tag: '搞笑' },
+    { title: '最近的网络新梗合集', author: '梗百科', likes: '143万', plays: '2400万', tag: '热梗' },
+    { title: '这些年的童年回忆', author: '回忆杀', likes: '132万', plays: '2100万', tag: '怀旧' }
+];
+
+// 备用选品数据
+const douyinProductFallback = [
+    { name: '冰丝防晒衣 UPF50+', price: '¥39.9', sales: '12.6万', commission: '30%', tag: '爆款', cat: '服饰' },
+    { name: '便携榨汁机USB充电', price: '¥59', sales: '8.3万', commission: '25%', tag: '爆款', cat: '小家电' },
+    { name: '儿童识字拼图玩具', price: '¥29.9', sales: '6.8万', commission: '35%', tag: '高佣', cat: '母婴' },
+    { name: '助眠香薰精油套装', price: '¥49', sales: '5.2万', commission: '40%', tag: '高佣', cat: '家居' },
+    { name: '厨房多功能切菜器', price: '¥19.9', sales: '4.7万', commission: '20%', tag: '低价', cat: '厨房' },
+    { name: '夏季冰丝凉感T恤', price: '¥29', sales: '4.3万', commission: '28%', tag: '爆款', cat: '服饰' },
+    { name: '宠物自动饮水器', price: '¥35', sales: '3.9万', commission: '32%', tag: '爆款', cat: '宠物' },
+    { name: '手机支架桌面折叠', price: '¥9.9', sales: '3.5万', commission: '15%', tag: '低价', cat: '数码' },
+    { name: '玻尿酸面部精华液', price: '¥69', sales: '3.1万', commission: '45%', tag: '高佣', cat: '美妆' },
+    { name: '硅胶揉面垫大号', price: '¥15.9', sales: '2.8万', commission: '22%', tag: '低价', cat: '厨房' },
+    { name: '婴儿湿巾大包装80抽', price: '¥19.9', sales: '2.5万', commission: '30%', tag: '爆款', cat: '母婴' },
+    { name: '蓝牙耳机运动防水', price: '¥79', sales: '2.2万', commission: '25%', tag: '爆款', cat: '数码' }
+];
+
+let currentDouyinTab = 'viral';
+let currentProductFilter = 'all';
+
+function douyinTab(tab, el) {
+    currentDouyinTab = tab;
+    document.querySelectorAll('#page-douyin > .tabs .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('douyinViralArea').style.display = tab === 'viral' ? 'block' : 'none';
+    document.getElementById('douyinProductArea').style.display = tab === 'product' ? 'block' : 'none';
+}
+
+async function refreshDouyinViral() {
+    const container = document.getElementById('douyinViralList');
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>加载中...</div>';
+    let list = null;
+    try {
+        const resp = await fetch('/api/douyin/viral');
+        if(resp.ok) {
+            const data = await resp.json();
+            if(data.list && data.list.length > 0) list = data.list;
+        }
+    } catch(e) {}
+    if(!list || list.length === 0) list = douyinViralFallback;
+    renderDouyinViral(list);
+    showToast('刷新成功 ✦');
+}
+
+function renderDouyinViral(list) {
+    const colors = ['#dcfce7','#fef3c7','#dbeafe','#fde2e2','#ede9fe','#f0fbeb','#fed7aa','#cffafe','#fce7f3'];
+    const tagColors = { '社会':'tag-blue','生活':'tag-green','职场':'tag-purple','母婴':'tag-orange','手工':'tag-green','青春':'tag-purple','搞笑':'tag-orange','热梗':'tag-red','怀旧':'tag-blue' };
+    document.getElementById('douyinViralList').innerHTML = '<div class="grid-3">' + list.map((v, i) => `
+        <div class="video-card" onclick="showToast('${v.title}')">
+            <div class="video-thumb" style="background:${colors[i%colors.length]}">🎵</div>
+            <div class="video-info">
+                <div class="v-title">${v.title}</div>
+                <div class="v-meta mt-12" style="margin-top:6px;">@${v.author || '未知'}</div>
+                <div class="flex-between mt-12" style="margin-top:6px;">
+                    <span class="text-sm text-red">❤️ ${v.likes || '--'}</span>
+                    <span class="text-sm text-gray">▶️ ${v.plays || '--'}</span>
+                </div>
+                ${v.tag ? `<div class="mt-12" style="margin-top:6px;"><span class="tag ${tagColors[v.tag]||'tag-gray'}">${v.tag}</span></div>` : ''}
+            </div>
+        </div>
+    `).join('') + '</div>';
+}
+
+async function refreshDouyinProducts() {
+    const container = document.getElementById('douyinProductList');
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>加载中...</div>';
+    let list = null;
+    try {
+        const resp = await fetch('/api/douyin/products');
+        if(resp.ok) {
+            const data = await resp.json();
+            if(data.list && data.list.length > 0) list = data.list;
+        }
+    } catch(e) {}
+    if(!list || list.length === 0) list = douyinProductFallback;
+    renderDouyinProducts(list);
+    showToast('刷新成功 ✦');
+}
+
+function renderDouyinProducts(list) {
+    document.getElementById('dyProductCount').textContent = list.length;
+    const commissions = list.map(p => parseFloat(p.commission) || 0).filter(c => c > 0);
+    const avgComm = commissions.length > 0 ? (commissions.reduce((s,c) => s+c, 0) / commissions.length).toFixed(0) + '%' : '--';
+    document.getElementById('dyAvgCommission').textContent = avgComm;
+    const catCount = {};
+    list.forEach(p => { catCount[p.cat] = (catCount[p.cat] || 0) + 1; });
+    const topCat = Object.entries(catCount).sort((a,b) => b[1] - a[1])[0];
+    document.getElementById('dyTopCategory').textContent = topCat ? topCat[0] : '--';
+
+    let filtered = list;
+    if(currentProductFilter === '高佣') filtered = list.filter(p => parseFloat(p.commission) >= 30);
+    else if(currentProductFilter === '爆款') filtered = list.filter(p => parseFloat(p.sales) >= 30000 || p.tag === '爆款');
+    else if(currentProductFilter === '低价') filtered = list.filter(p => parseFloat(p.price.replace(/[^0-9.]/g,'')) < 30);
+
+    const tagColors = { '爆款':'tag-red','高佣':'tag-green','低价':'tag-blue' };
+    document.getElementById('douyinProductList').innerHTML = '<div class="grid-2">' + filtered.map((p, i) => `
+        <div class="card" style="margin-bottom:12px;">
+            <div class="flex-between mb-12">
+                <div class="font-bold text-green" style="flex:1;">${p.name}</div>
+                <span class="tag ${tagColors[p.tag]||'tag-gray'}">${p.tag}</span>
+            </div>
+            <div class="flex-between mt-12" style="margin-top:8px;">
+                <div>
+                    <span class="text-lg font-bold text-red">${p.price}</span>
+                    <span class="text-sm text-gray ml-12" style="margin-left:8px;">佣金 ${p.commission}</span>
+                </div>
+                <span class="text-sm text-gray">📦 ${p.sales}</span>
+            </div>
+            ${p.cat ? `<div class="mt-12" style="margin-top:8px;"><span class="tag tag-gray">${p.cat}</span></div>` : ''}
+        </div>
+    `).join('') + '</div>';
+}
+
+function filterProduct(filter, el) {
+    currentProductFilter = filter;
+    document.querySelectorAll('#productFilterTabs .workout-target').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    refreshDouyinProducts();
+}
+
+// ==================== 初始化 ====================
+function init() {
+    document.getElementById('finDate').value = today();
+    document.getElementById('babyDate').value = today();
+    document.getElementById('healthDate').value = today();
+    updateFinanceCategories();
+    renderFinance();
+    renderBaby();
+    renderTodo();
+    renderLessons();
+    renderHealth();
+    renderWorkoutVideos();
+    renderEqContent();
+    renderEqDiary();
+    renderEqTest();
+    renderHot();
+    renderDailyKnowledge();
+    renderDailyCategories();
+    renderDailyNotes();
+    initFoodDB();
+    renderDiet();
+    refreshDouyinViral();
+    refreshDouyinProducts();
+}
+
+init();
+
+// ==================== PWA Service Worker 注册 ====================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => {
+                console.log('✦ PWA 已就绪');
+                // 检测新版本，发现后自动更新
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage('skipWaiting');
+                            window.location.reload();
+                        }
+                    });
+                });
+            })
+            .catch(err => console.log('SW 注册失败:', err));
+    });
+}
+
+// iOS PDA 启动动画
+window.addEventListener('DOMContentLoaded', () => {
+    document.body.style.webkitTapHighlightColor = 'transparent';
+});
+</script>
+</body>
+</html>

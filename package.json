@@ -1,0 +1,10 @@
+{
+    "name": "green-workbench",
+    "private": true,
+    "vercel": {
+        "projects": {}
+    },
+    "devDependencies": {
+        "vercel": "^58.1.0"
+    }
+}
