@@ -1,7 +1,7 @@
 // 绿绿工作台 Service Worker
 // 缓存策略：核心资源优先缓存，API 请求网络优先
 
-const CACHE_NAME = 'green-workbench-v4';
+const CACHE_NAME = 'green-workbench-v5';
 const CORE_ASSETS = [
     '/',
     '/index.html',
