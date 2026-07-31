@@ -1622,6 +1622,11 @@
     <div class="welcome-banner">
         <h2>欢迎来到绿绿的工作台 🌿</h2>
         <p>你的个人成长小助手，每一天都在变得更好 ✦</p>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-soft btn-sm" onclick="exportData()">📤 导出数据</button>
+            <button class="btn btn-soft btn-sm" onclick="document.getElementById('importFile').click()">📥 导入数据</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(this)">
+        </div>
     </div>
     <div class="grid-4 mb-16">
         <div class="quick-nav-item" onclick="switchPage('finance')">
@@ -2353,6 +2358,50 @@ function loadData(key, def) {
 }
 function saveData(key, data) {
     localStorage.setItem('green_' + key, JSON.stringify(data));
+}
+
+// ==================== 导出/导入 ====================
+function exportData() {
+    const allData = {};
+    const prefix = 'green_';
+    for(let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if(k && k.startsWith(prefix)) {
+            allData[k] = localStorage.getItem(k);
+        }
+    }
+    const blob = new Blob([JSON.stringify(allData, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '绿绿工作台备份_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('数据已导出 ✦');
+}
+
+function importData(input) {
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            let count = 0;
+            for(const [k, v] of Object.entries(data)) {
+                if(k.startsWith('green_')) {
+                    localStorage.setItem(k, v);
+                    count++;
+                }
+            }
+            showToast('已导入 ' + count + ' 条数据，即将刷新…');
+            setTimeout(() => location.reload(), 1500);
+        } catch(err) {
+            showToast('文件格式错误，请检查');
+        }
+    };
+    reader.readAsText(file);
+    input.value = '';
 }
 
 // ==================== 导航切换 ====================
